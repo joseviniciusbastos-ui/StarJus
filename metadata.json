@@ -1,0 +1,7 @@
+{
+  "name": "STARJUS 2.0",
+  "description": "Professional Legal Management Software for modern law firms. Features productivity tracking, process management, and financial oversight.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
