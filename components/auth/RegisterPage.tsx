@@ -24,13 +24,15 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, o
     setLoading(true);
     setError(null);
 
-    // 1. Sign Up User
+    // Sign Up User with metadata that triggers automatic office creation
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
         data: {
           full_name: formData.fullName,
+          office_name: formData.officeName,
+          oab: formData.oab
         }
       }
     });
@@ -42,37 +44,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, o
     }
 
     if (authData.user) {
-      // 2. Create Office
-      const { data: officeData, error: officeError } = await supabase
-        .from('offices')
-        .insert({
-          name: formData.officeName,
-          owner_id: authData.user.id
-        })
-        .select()
-        .single();
-
-      if (officeError) {
-        setError("Erro ao criar escritório: " + officeError.message);
-        setLoading(false);
-        return;
-      }
-
-      // 3. Create Office Member (Admin)
-      const { error: memberError } = await supabase
-        .from('office_members')
-        .insert({
-          office_id: officeData.id,
-          user_id: authData.user.id,
-          role: 'admin'
-        });
-
-      if (memberError) {
-        setError("Erro ao vincular operador: " + memberError.message);
-        setLoading(false);
-        return;
-      }
-
+      // Office and Member are automatically created by DB Trigger
       onRegisterSuccess();
     }
   };
