@@ -9,9 +9,9 @@ interface LogoProps {
   animate?: boolean;
 }
 
-export const Logo: React.FC<LogoProps> = ({ 
-  className = "", 
-  size = 64, 
+export const Logo: React.FC<LogoProps> = ({
+  className = "",
+  size = 64,
   showText = true,
   textColor = "text-white",
   animate = true
@@ -21,35 +21,14 @@ export const Logo: React.FC<LogoProps> = ({
       <div className="relative group">
         {/* Aura pulsante de autoridade */}
         <div className="absolute inset-0 bg-gold-500 rounded-full blur-3xl opacity-20 animate-aura-pulse" />
-        
-        <svg 
-          width={size} 
-          height={size} 
-          viewBox="0 0 40 40" 
-          fill="none" 
-          xmlns="http://www.w3.org/2000/svg"
-          className={`relative z-10 transition-all duration-1000 ${animate ? 'group-hover:scale-110 group-hover:rotate-[5deg]' : ''}`}
-        >
-          {/* Pilar Esquerdo - Símbolo de Lei e Suporte */}
-          <rect x="6" y="2" width="8" height="36" fill="url(#premiumGold)" rx="2" />
-          
-          {/* Pilar Direito com Base - O J Curvo da Justiça */}
-          <rect x="26" y="2" width="8" height="26" fill="url(#premiumGold)" rx="2" />
-          <rect x="16" y="30" width="18" height="8" fill="url(#premiumGold)" rx="2" />
-          
-          {/* Elemento de Balança Central - Simbolizando Equilíbrio */}
-          <path d="M14 18H26" stroke="url(#premiumGold)" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
-          
-          <defs>
-            <linearGradient id="premiumGold" x1="6" y1="2" x2="34" y2="38" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#bf953f" />
-              <stop offset="0.25" stopColor="#fcf6ba" />
-              <stop offset="0.5" stopColor="#b38728" />
-              <stop offset="0.75" stopColor="#fbf5b7" />
-              <stop offset="1" stopColor="#aa771c" />
-            </linearGradient>
-          </defs>
-        </svg>
+
+        <img
+          src="/favicon.png"
+          alt="StarJus Logo"
+          width={size}
+          height={size}
+          className={`relative z-10 rounded-xl transition-all duration-1000 ${animate ? 'group-hover:scale-110 group-hover:rotate-[5deg]' : ''}`}
+        />
       </div>
 
       {showText && (

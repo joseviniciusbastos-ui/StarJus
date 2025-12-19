@@ -115,40 +115,76 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, o
               <div className="sm:col-span-2 space-y-2 group">
                 <label className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1 group-focus-within:text-gold-500 transition-colors">Razão Social / Nome Fantasia</label>
                 <div className="relative">
-                  <Building2 size={18} className="absolute left-5 top-4.5 text-zinc-700 group-focus-within:text-gold-500 transition-colors" />
-                  <input required type="text" className="block w-full pl-14 pr-6 py-4.5 bg-black border border-zinc-800 rounded-2xl focus:ring-1 focus:ring-gold-500 outline-none text-white font-bold transition-all" placeholder="Ex: Silva & Associados" />
+                  <Building2 size={18} className="absolute left-5 top-4 text-zinc-700 group-focus-within:text-gold-500 transition-colors" />
+                  <input
+                    required
+                    type="text"
+                    value={formData.officeName}
+                    onChange={(e) => setFormData({ ...formData, officeName: e.target.value })}
+                    className="block w-full pl-14 pr-6 py-4 bg-black border border-zinc-800 rounded-2xl focus:ring-1 focus:ring-gold-500 outline-none text-white font-bold transition-all"
+                    placeholder="Ex: Silva & Associados"
+                  />
                 </div>
               </div>
 
               <div className="space-y-2 group">
                 <label className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1 group-focus-within:text-gold-500 transition-colors">OAB Principal</label>
                 <div className="relative">
-                  <BadgeCheck size={18} className="absolute left-5 top-4.5 text-zinc-700 group-focus-within:text-gold-500 transition-colors" />
-                  <input required type="text" className="block w-full pl-14 pr-6 py-4.5 bg-black border border-zinc-800 rounded-2xl focus:ring-1 focus:ring-gold-500 outline-none text-white font-bold transition-all" placeholder="SP-123.456" />
+                  <BadgeCheck size={18} className="absolute left-5 top-4 text-zinc-700 group-focus-within:text-gold-500 transition-colors" />
+                  <input
+                    required
+                    type="text"
+                    value={formData.oab}
+                    onChange={(e) => setFormData({ ...formData, oab: e.target.value })}
+                    className="block w-full pl-14 pr-6 py-4 bg-black border border-zinc-800 rounded-2xl focus:ring-1 focus:ring-gold-500 outline-none text-white font-bold transition-all"
+                    placeholder="SP-123.456"
+                  />
                 </div>
               </div>
 
               <div className="space-y-2 group">
                 <label className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1 group-focus-within:text-gold-500 transition-colors">Operador Responsável</label>
                 <div className="relative">
-                  <User size={18} className="absolute left-5 top-4.5 text-zinc-700 group-focus-within:text-gold-500 transition-colors" />
-                  <input required type="text" className="block w-full pl-14 pr-6 py-4.5 bg-black border border-zinc-800 rounded-2xl focus:ring-1 focus:ring-gold-500 outline-none text-white font-bold transition-all" placeholder="Dr. Nome Sobrenome" />
+                  <User size={18} className="absolute left-5 top-4 text-zinc-700 group-focus-within:text-gold-500 transition-colors" />
+                  <input
+                    required
+                    type="text"
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                    className="block w-full pl-14 pr-6 py-4 bg-black border border-zinc-800 rounded-2xl focus:ring-1 focus:ring-gold-500 outline-none text-white font-bold transition-all"
+                    placeholder="Dr. Nome Sobrenome"
+                  />
                 </div>
               </div>
 
               <div className="space-y-2 group">
                 <label className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1 group-focus-within:text-gold-500 transition-colors">E-mail Corporativo</label>
                 <div className="relative">
-                  <Mail size={18} className="absolute left-5 top-4.5 text-zinc-700 group-focus-within:text-gold-500 transition-colors" />
-                  <input required type="email" className="block w-full pl-14 pr-6 py-4.5 bg-black border border-zinc-800 rounded-2xl focus:ring-1 focus:ring-gold-500 outline-none text-white font-bold transition-all" placeholder="advogado@office.com" />
+                  <Mail size={18} className="absolute left-5 top-4 text-zinc-700 group-focus-within:text-gold-500 transition-colors" />
+                  <input
+                    required
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="block w-full pl-14 pr-6 py-4 bg-black border border-zinc-800 rounded-2xl focus:ring-1 focus:ring-gold-500 outline-none text-white font-bold transition-all"
+                    placeholder="advogado@office.com"
+                  />
                 </div>
               </div>
 
               <div className="space-y-2 group">
                 <label className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1 group-focus-within:text-gold-500 transition-colors">Senha de Autoridade</label>
                 <div className="relative">
-                  <Lock size={18} className="absolute left-5 top-4.5 text-zinc-700 group-focus-within:text-gold-500 transition-colors" />
-                  <input required type="password" title="Mínimo 8 caracteres" className="block w-full pl-14 pr-6 py-4.5 bg-black border border-zinc-800 rounded-2xl focus:ring-1 focus:ring-gold-500 outline-none text-white font-bold transition-all" placeholder="••••••••" />
+                  <Lock size={18} className="absolute left-5 top-4 text-zinc-700 group-focus-within:text-gold-500 transition-colors" />
+                  <input
+                    required
+                    type="password"
+                    title="Mínimo 8 caracteres"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="block w-full pl-14 pr-6 py-4 bg-black border border-zinc-800 rounded-2xl focus:ring-1 focus:ring-gold-500 outline-none text-white font-bold transition-all"
+                    placeholder="••••••••"
+                  />
                 </div>
               </div>
             </div>

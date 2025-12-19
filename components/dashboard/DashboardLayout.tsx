@@ -18,7 +18,8 @@ import {
   Sun,
   Moon,
   ZapIcon,
-  Shield
+  Shield,
+  Mail
 } from 'lucide-react';
 import { ProfileModal } from './ProfileModal';
 import { Logo } from '../ui/Logo';
@@ -118,6 +119,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     { id: 'condos', name: 'Condomínios', icon: Building2 },
     { id: 'processes', name: 'Processos', icon: Scale },
     { id: 'financial', name: 'Financeiro', icon: CircleDollarSign },
+    { id: 'corporate_email', name: 'E-mail Corporativo', icon: Mail },
     { id: 'reports', name: 'Métricas BI', icon: PieChart },
     { id: 'audit_logs', name: 'Auditoria Alpha', icon: Shield },
   ];
