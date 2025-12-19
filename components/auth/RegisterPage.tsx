@@ -78,12 +78,12 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, o
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-obsidian-950 p-6 relative overflow-hidden selection:bg-gold-500 selection:text-black">
+    <div className="min-h-screen flex items-center justify-center bg-black p-6 relative overflow-hidden selection:bg-gold-500/30 selection:text-white">
       {/* Decorative background */}
       <div className="absolute top-0 right-0 w-1/3 h-full bg-gold-600/5 -skew-x-12 transform translate-x-20 z-0" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-gold-500/10 rounded-full blur-[160px] z-0" />
 
-      <div className="relative z-10 w-full max-w-4xl bg-zinc-900 rounded-[3rem] shadow-3xl border border-zinc-800 overflow-hidden flex flex-col md:flex-row">
+      <div className="relative z-10 w-full max-w-4xl bg-zinc-900/90 backdrop-blur-2xl rounded-[3rem] shadow-[0_0_100px_-20px_rgba(0,0,0,0.8),0_0_40px_-15px_rgba(212,175,55,0.1)] border border-zinc-800/50 overflow-hidden flex flex-col md:flex-row">
         {/* Progress Sidebar (Desktop) */}
         <div className="hidden md:flex w-64 bg-black p-12 flex-col justify-between border-r border-zinc-800">
           <Logo size={48} showText={false} />
@@ -113,7 +113,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, o
           <form onSubmit={handleSubmit} className="space-y-10 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               <div className="sm:col-span-2 space-y-2 group">
-                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1 group-focus-within:text-gold-500 transition-colors">Razão Social / Nome Fantasia</label>
+                <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] ml-1 group-focus-within:text-gold-500 transition-colors">Razão Social / Nome Fantasia</label>
                 <div className="relative">
                   <Building2 size={18} className="absolute left-5 top-4 text-zinc-700 group-focus-within:text-gold-500 transition-colors" />
                   <input
@@ -121,14 +121,14 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, o
                     type="text"
                     value={formData.officeName}
                     onChange={(e) => setFormData({ ...formData, officeName: e.target.value })}
-                    className="block w-full pl-14 pr-6 py-4 bg-black border border-zinc-800 rounded-2xl focus:ring-1 focus:ring-gold-500 outline-none text-white font-bold transition-all"
+                    className="block w-full pl-14 pr-6 py-4 bg-black/60 border border-zinc-800/80 rounded-2xl focus:ring-1 focus:ring-gold-500/50 focus:border-gold-500/50 outline-none text-white font-bold transition-all placeholder:text-zinc-700"
                     placeholder="Ex: Silva & Associados"
                   />
                 </div>
               </div>
 
               <div className="space-y-2 group">
-                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1 group-focus-within:text-gold-500 transition-colors">OAB Principal</label>
+                <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] ml-1 group-focus-within:text-gold-500 transition-colors">OAB Principal</label>
                 <div className="relative">
                   <BadgeCheck size={18} className="absolute left-5 top-4 text-zinc-700 group-focus-within:text-gold-500 transition-colors" />
                   <input
@@ -136,14 +136,14 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, o
                     type="text"
                     value={formData.oab}
                     onChange={(e) => setFormData({ ...formData, oab: e.target.value })}
-                    className="block w-full pl-14 pr-6 py-4 bg-black border border-zinc-800 rounded-2xl focus:ring-1 focus:ring-gold-500 outline-none text-white font-bold transition-all"
+                    className="block w-full pl-14 pr-6 py-4 bg-black/60 border border-zinc-800/80 rounded-2xl focus:ring-1 focus:ring-gold-500/50 focus:border-gold-500/50 outline-none text-white font-bold transition-all placeholder:text-zinc-700"
                     placeholder="SP-123.456"
                   />
                 </div>
               </div>
 
               <div className="space-y-2 group">
-                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1 group-focus-within:text-gold-500 transition-colors">Operador Responsável</label>
+                <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] ml-1 group-focus-within:text-gold-500 transition-colors">Operador Responsável</label>
                 <div className="relative">
                   <User size={18} className="absolute left-5 top-4 text-zinc-700 group-focus-within:text-gold-500 transition-colors" />
                   <input
@@ -151,14 +151,14 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, o
                     type="text"
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    className="block w-full pl-14 pr-6 py-4 bg-black border border-zinc-800 rounded-2xl focus:ring-1 focus:ring-gold-500 outline-none text-white font-bold transition-all"
+                    className="block w-full pl-14 pr-6 py-4 bg-black/60 border border-zinc-800/80 rounded-2xl focus:ring-1 focus:ring-gold-500/50 focus:border-gold-500/50 outline-none text-white font-bold transition-all placeholder:text-zinc-700"
                     placeholder="Dr. Nome Sobrenome"
                   />
                 </div>
               </div>
 
               <div className="space-y-2 group">
-                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1 group-focus-within:text-gold-500 transition-colors">E-mail Corporativo</label>
+                <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] ml-1 group-focus-within:text-gold-500 transition-colors">E-mail Corporativo</label>
                 <div className="relative">
                   <Mail size={18} className="absolute left-5 top-4 text-zinc-700 group-focus-within:text-gold-500 transition-colors" />
                   <input
@@ -166,14 +166,14 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, o
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="block w-full pl-14 pr-6 py-4 bg-black border border-zinc-800 rounded-2xl focus:ring-1 focus:ring-gold-500 outline-none text-white font-bold transition-all"
+                    className="block w-full pl-14 pr-6 py-4 bg-black/60 border border-zinc-800/80 rounded-2xl focus:ring-1 focus:ring-gold-500/50 focus:border-gold-500/50 outline-none text-white font-bold transition-all placeholder:text-zinc-700"
                     placeholder="advogado@office.com"
                   />
                 </div>
               </div>
 
               <div className="space-y-2 group">
-                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1 group-focus-within:text-gold-500 transition-colors">Senha de Autoridade</label>
+                <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] ml-1 group-focus-within:text-gold-500 transition-colors">Senha de Autoridade</label>
                 <div className="relative">
                   <Lock size={18} className="absolute left-5 top-4 text-zinc-700 group-focus-within:text-gold-500 transition-colors" />
                   <input
@@ -182,7 +182,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, o
                     title="Mínimo 8 caracteres"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="block w-full pl-14 pr-6 py-4 bg-black border border-zinc-800 rounded-2xl focus:ring-1 focus:ring-gold-500 outline-none text-white font-bold transition-all"
+                    className="block w-full pl-14 pr-6 py-4 bg-black/60 border border-zinc-800/80 rounded-2xl focus:ring-1 focus:ring-gold-500/50 focus:border-gold-500/50 outline-none text-white font-bold transition-all placeholder:text-zinc-700"
                     placeholder="••••••••"
                   />
                 </div>
