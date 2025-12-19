@@ -201,12 +201,28 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, o
               </label>
             </div>
 
+            {error && (
+              <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl animate-fade-in-up">
+                <p className="text-xs text-red-500 font-bold text-center">{error}</p>
+              </div>
+            )}
+
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-3 py-6 bg-gradient-to-r from-gold-600 to-gold-700 hover:from-gold-500 hover:to-gold-600 text-black rounded-[2rem] shadow-2xl shadow-gold-900/10 font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-[0.98]"
+              disabled={loading}
+              className={`w-full flex items-center justify-center gap-3 py-6 bg-gradient-to-r from-gold-600 to-gold-700 hover:from-gold-500 hover:to-gold-600 text-black rounded-[2rem] shadow-2xl shadow-gold-900/10 font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-[0.98] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              Confirmar Adesão
-              <ArrowRight size={18} />
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                  Processando...
+                </>
+              ) : (
+                <>
+                  Confirmar Adesão
+                  <ArrowRight size={18} />
+                </>
+              )}
             </button>
           </form>
 
