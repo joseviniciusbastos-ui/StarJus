@@ -55,7 +55,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onRegisterClick }
           alt="Luxury Office"
         />
         <div className="relative z-20 flex flex-col justify-between p-24 h-full">
-          <Logo size={48} textColor="text-white" />
+          <Logo size={96} textColor="text-white" />
 
           <div className="space-y-8 max-w-xl animate-fade-in-up">
             <h2 className="text-7xl font-black text-white leading-none tracking-tighter">

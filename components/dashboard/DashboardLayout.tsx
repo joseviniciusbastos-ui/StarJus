@@ -130,7 +130,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       <aside className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-white dark:bg-black border-r border-slate-200 dark:border-zinc-900 transform transition-all duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static`}>
         <div className="h-full flex flex-col">
           <div className="h-28 flex items-center px-10">
-            <Logo size={28} textColor="text-slate-950 dark:text-white" />
+            <Logo size={40} textColor="text-slate-950 dark:text-white" />
           </div>
           <nav className="flex-1 px-6 space-y-1.5 overflow-y-auto custom-scrollbar">
             {navigation.map((item) => (

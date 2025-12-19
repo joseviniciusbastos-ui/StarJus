@@ -86,7 +86,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, o
       <div className="relative z-10 w-full max-w-4xl bg-zinc-900 rounded-[3rem] shadow-3xl border border-zinc-800 overflow-hidden flex flex-col md:flex-row">
         {/* Progress Sidebar (Desktop) */}
         <div className="hidden md:flex w-64 bg-black p-12 flex-col justify-between border-r border-zinc-800">
-          <Logo size={32} showText={false} />
+          <Logo size={48} showText={false} />
           <div className="space-y-10">
             <div className="flex flex-col gap-3">
               <div className="h-[2px] w-10 bg-gold-500 rounded-full" />
