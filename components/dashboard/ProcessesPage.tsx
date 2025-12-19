@@ -1,7 +1,14 @@
+import React, { useState, useEffect } from 'react';
+import { Plus, Search, Filter, Scale, Edit2, ChevronRight, FileText, MessageSquare, Send } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../lib/AuthContext';
+import { Modal } from '../ui/Modal';
+import { Process, Client } from '../../types';
+import { FileUploader } from '../ui/FileUploader';
 
 export const ProcessesPage: React.FC = () => {
   const [processes, setProcesses] = useState<Process[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -9,24 +16,94 @@ export const ProcessesPage: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [editingProcess, setEditingProcess] = useState<Process | null>(null);
+  const [comments, setComments] = useState<any[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const { officeId } = useAuth();
 
   useEffect(() => {
     fetchProcesses();
-  }, []);
+    fetchClients();
+  }, [officeId]);
+
+  useEffect(() => {
+    if (selectedProcess) {
+      fetchComments(selectedProcess.id);
+
+      const channel = supabase
+        .channel(`process_comments:${selectedProcess.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'process_comments',
+            filter: `process_id=eq.${selectedProcess.id}`
+          },
+          (payload) => {
+            setComments(current => [payload.new, ...current]);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [selectedProcess]);
+
+  const fetchComments = async (processId: string) => {
+    const { data } = await supabase
+      .from('process_comments')
+      .select('*, profiles:user_id(full_name, avatar_url)')
+      .eq('process_id', processId)
+      .order('created_at', { ascending: false });
+
+    if (data) setComments(data);
+  };
+
+  const handleCommentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newComment.trim() || !selectedProcess) return;
+
+    const { error } = await supabase
+      .from('process_comments')
+      .insert([
+        {
+          process_id: parseInt(selectedProcess.id),
+          content: newComment.trim(),
+          office_id: officeId
+        }
+      ]);
+
+    if (!error) {
+      setNewComment('');
+      // Realtime will handle the update
+    }
+  };
+
+  const fetchClients = async () => {
+    const { data } = await supabase.from('clients').select('id, name');
+    if (data) setClients(data as any);
+  };
 
   const fetchProcesses = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('processes')
-      .select('*');
+      .select(`
+        *,
+        clients (
+          name
+        )
+      `)
+      .order('created_at', { ascending: false });
 
     if (data) {
-      // Map DB fields to component types if they differ (using value_text etc)
       const mappedData: Process[] = data.map(p => ({
         id: p.id.toString(),
         number: p.number,
         title: p.title,
-        client: 'Roberto Silva', // In a real app we'd join on client_id
+        client: (p.clients as any)?.name || 'Cliente não vinculado',
         court: p.court,
         status: p.status as any,
         lastUpdate: p.last_update,
@@ -36,6 +113,42 @@ export const ProcessesPage: React.FC = () => {
       setProcesses(mappedData);
     }
     setLoading(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    const processData = {
+      title: formData.get('title') as string,
+      number: formData.get('number') as string,
+      court: formData.get('court') as string,
+      value_text: formData.get('value') as string,
+      client_id: formData.get('client_id') ? parseInt(formData.get('client_id') as string) : null,
+      office_id: officeId,
+      status: 'Active'
+    };
+
+    if (editingProcess) {
+      const { error } = await supabase
+        .from('processes')
+        .update(processData)
+        .eq('id', editingProcess.id);
+
+      if (!error) {
+        setEditingProcess(null);
+        fetchProcesses();
+      }
+    } else {
+      const { error } = await supabase
+        .from('processes')
+        .insert([processData]);
+
+      if (!error) {
+        setIsAddModalOpen(false);
+        fetchProcesses();
+      }
+    }
   };
 
   const filteredProcesses = processes.filter(p => {
@@ -122,32 +235,127 @@ export const ProcessesPage: React.FC = () => {
       </div>
 
       <Modal
+        isOpen={!!selectedProcess}
+        onClose={() => setSelectedProcess(null)}
+        title="Dossiê Processual Alpha"
+      >
+        {selectedProcess && (
+          <div className="space-y-10">
+            <div className="flex justify-between items-start">
+              <div className="space-y-2">
+                <h3 className="text-4xl font-black text-white tracking-tighter leading-none italic font-serif gold-gradient-text">{selectedProcess.title}</h3>
+                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em]">{selectedProcess.number}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-8">
+              <div className="bg-zinc-900 p-8 rounded-[2.5rem] border border-zinc-800">
+                <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-3">Cliente Relacionado</span>
+                <p className="text-xl font-black text-white uppercase tracking-tight">{selectedProcess.client}</p>
+              </div>
+              <div className="bg-zinc-900 p-8 rounded-[2.5rem] border border-zinc-800">
+                <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-3">Valor da Causa</span>
+                <p className="text-xl font-black text-gold-500 tracking-tight">{selectedProcess.value}</p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <h4 className="text-[11px] font-black text-zinc-600 uppercase tracking-[0.3em] flex items-center gap-3">
+                <FileText size={16} className="text-gold-600" /> Documentação Alpha
+              </h4>
+              <FileUploader
+                entityType="processes"
+                entityId={selectedProcess.id}
+                onUploadComplete={() => fetchProcesses()}
+              />
+            </div>
+
+            <div className="space-y-6">
+              <h4 className="text-[11px] font-black text-zinc-600 uppercase tracking-[0.3em] flex items-center gap-3">
+                <MessageSquare size={16} className="text-gold-600" /> Histórico & Comentários Alpha
+              </h4>
+
+              <div className="bg-zinc-900/50 rounded-[2.5rem] border border-zinc-800/50 p-6 space-y-6">
+                <form onSubmit={handleCommentSubmit} className="relative">
+                  <input
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Adicionar nota estratégica..."
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-6 py-4 text-sm text-white focus:border-gold-500 outline-none transition-all pr-14"
+                  />
+                  <button
+                    type="submit"
+                    className="absolute right-2 top-2 p-2 text-gold-500 hover:text-gold-400 transition-colors"
+                  >
+                    <Send size={20} />
+                  </button>
+                </form>
+
+                <div className="space-y-4 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
+                  {comments.length === 0 ? (
+                    <p className="text-[10px] text-zinc-600 uppercase tracking-widest text-center py-4 italic">Nenhum comentário registrado</p>
+                  ) : (
+                    comments.map((comment) => (
+                      <div key={comment.id} className="bg-zinc-950/50 p-4 rounded-2xl border border-zinc-800/30 space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] font-black text-gold-500 uppercase tracking-widest">
+                            {comment.profiles?.full_name || 'Membro do Office'}
+                          </span>
+                          <span className="text-[9px] text-zinc-600 font-mono">
+                            {new Date(comment.created_at).toLocaleString()}
+                          </span>
+                        </div>
+                        <p className="text-sm text-zinc-300 leading-relaxed">{comment.content}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6 border-t border-zinc-900">
+              <button onClick={() => setSelectedProcess(null)} className="w-full py-6 bg-zinc-900 text-zinc-400 rounded-3xl font-black text-[11px] uppercase tracking-widest hover:text-white hover:bg-zinc-800 transition-all border border-zinc-800">Fechar Dossiê</button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
         isOpen={isAddModalOpen || !!editingProcess}
         onClose={() => { setIsAddModalOpen(false); setEditingProcess(null); }}
         title={editingProcess ? "Atualizar Registro Alpha" : "Novo Registro de Litígio"}
       >
-        <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-8" onSubmit={handleSubmit}>
           <div className="space-y-3">
             <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Denominação do Processo</label>
-            <input defaultValue={editingProcess?.title} required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Ex: Silva vs Construtora Alpha" />
+            <input name="title" defaultValue={editingProcess?.title} required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Ex: Silva vs Construtora Alpha" />
           </div>
           <div className="space-y-3">
             <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Número CNJ / Indexador Alpha</label>
-            <input defaultValue={editingProcess?.number} required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="0000000-00.0000.0.00.0000" />
+            <input name="number" defaultValue={editingProcess?.number} required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="0000000-00.0000.0.00.0000" />
+          </div>
+          <div className="space-y-3">
+            <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Cliente Vinculado</label>
+            <select name="client_id" className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner appearance-none">
+              <option value="">Selecionar Cliente Alpha...</option>
+              {clients.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Tribunal de Origem</label>
-              <input defaultValue={editingProcess?.court} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Ex: 3ª Vara Cível SP" />
+              <input name="court" defaultValue={editingProcess?.court} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Ex: 3ª Vara Cível SP" />
             </div>
             <div className="space-y-3">
               <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Expectativa Econômica</label>
-              <input defaultValue={editingProcess?.value} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="R$ 0,00" />
+              <input name="value" defaultValue={editingProcess?.value} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="R$ 0,00" />
             </div>
           </div>
           <div className="pt-8 flex flex-col sm:flex-row gap-6 border-t border-slate-100 dark:border-zinc-900">
             <button type="button" onClick={() => { setIsAddModalOpen(false); setEditingProcess(null); }} className="flex-1 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all">Cancelar</button>
-            <button type="submit" onClick={() => { setIsAddModalOpen(false); setEditingProcess(null); }} className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all">
+            <button type="submit" className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all">
               {editingProcess ? "Efetivar Alteração" : "Confirmar Registro Alpha"}
             </button>
           </div>

@@ -3,22 +3,33 @@ import { CircleDollarSign, TrendingUp, TrendingDown, Download, Plus, ArrowUpRigh
 import { Modal } from '../ui/Modal';
 import { FinancialRecord } from '../../types';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../lib/AuthContext';
 
 export const FinancialPage: React.FC = () => {
   const [records, setRecords] = useState<FinancialRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<FinancialRecord | null>(null);
+  const { officeId } = useAuth();
+  const [formData, setFormData] = useState({
+    description: '',
+    amount: '',
+    type: 'Income' as 'Income' | 'Expense',
+    date: new Date().toISOString().split('T')[0],
+    category: 'Honorários Alpha'
+  });
 
   useEffect(() => {
-    fetchRecords();
-  }, []);
+    if (officeId) fetchRecords();
+  }, [officeId]);
 
   const fetchRecords = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('financial_records')
-      .select('*');
+      .select('*')
+      .eq('office_id', officeId)
+      .order('date', { ascending: false });
 
     if (data) {
       const mappedData: FinancialRecord[] = data.map(r => ({
@@ -50,9 +61,46 @@ export const FinancialPage: React.FC = () => {
     return `R$ ${val.toFixed(2)}`;
   };
 
-  const handleEdit = (record: FinancialRecord, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setEditingRecord(record);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const amountNumeric = parseFloat(formData.amount.replace('.', '').replace(',', '.'));
+
+    const recordData = {
+      description: formData.description,
+      amount_text: `R$ ${formData.amount}`,
+      amount_numeric: amountNumeric,
+      type: formData.type,
+      date: formData.date,
+      category: formData.category,
+      office_id: officeId,
+      status: 'Paid'
+    };
+
+    const { error } = await supabase
+      .from('financial_records')
+      .upsert(editingRecord ? { id: editingRecord.id, ...recordData } : recordData);
+
+    if (!error) {
+      setIsAddModalOpen(false);
+      setEditingRecord(null);
+      setFormData({
+        description: '',
+        amount: '',
+        type: 'Income',
+        date: new Date().toISOString().split('T')[0],
+        category: 'Honorários Alpha'
+      });
+      fetchRecords();
+    }
+    setLoading(false);
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Deseja realmente excluir este lançamento?')) return;
+    const { error } = await supabase.from('financial_records').delete().eq('id', id);
+    if (!error) fetchRecords();
   };
 
   return (
@@ -65,7 +113,17 @@ export const FinancialPage: React.FC = () => {
         <div className="flex gap-4 w-full sm:w-auto">
           <button className="flex-1 sm:flex-none bg-white dark:bg-black border border-slate-200 dark:border-zinc-800 text-slate-500 px-8 py-4 rounded-3xl font-black text-[10px] uppercase tracking-widest hover:border-gold-500 transition-all shadow-sm"><Download size={18} /></button>
           <button
-            onClick={() => setIsAddModalOpen(true)}
+            onClick={() => {
+              setEditingRecord(null);
+              setFormData({
+                description: '',
+                amount: '',
+                type: 'Income',
+                date: new Date().toISOString().split('T')[0],
+                category: 'Honorários Alpha'
+              });
+              setIsAddModalOpen(true);
+            }}
             className="flex-1 sm:flex-none bg-black dark:bg-white text-white dark:text-black px-10 py-5 rounded-[2rem] font-black uppercase tracking-widest text-[11px] shadow-2xl transition-all"
           >
             Novo Lançamento Alpha
@@ -109,8 +167,17 @@ export const FinancialPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-zinc-900 bg-white dark:bg-black">
-              {MOCK_FINANCIAL.map((record) => (
-                <tr key={record.id} className="hover:bg-slate-50 dark:hover:bg-zinc-900/40 transition-all group cursor-pointer" onClick={() => setEditingRecord(record)}>
+              {records.map((record) => (
+                <tr key={record.id} className="hover:bg-slate-50 dark:hover:bg-zinc-900/40 transition-all group cursor-pointer" onClick={() => {
+                  setEditingRecord(record);
+                  setFormData({
+                    description: record.description,
+                    amount: record.amount.replace('R$ ', ''),
+                    type: record.type,
+                    date: record.date,
+                    category: record.category
+                  });
+                }}>
                   <td className="px-12 py-10">
                     <div className="flex items-center gap-6">
                       <div className={`p-4 rounded-2xl border transition-all ${record.type === 'Income' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20'}`}>
@@ -129,7 +196,10 @@ export const FinancialPage: React.FC = () => {
                         {record.type === 'Income' ? '+' : '-'} {record.amount}
                       </span>
                       <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={(e) => handleEdit(record, e)} className="p-3 bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl text-slate-400 hover:text-gold-500 shadow-sm transition-all"><Edit2 size={16} /></button>
+                        <button onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(record.id);
+                        }} className="p-3 bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl text-slate-400 hover:text-red-500 shadow-sm transition-all"><Trash2 size={16} /></button>
                       </div>
                     </div>
                   </td>
@@ -145,19 +215,36 @@ export const FinancialPage: React.FC = () => {
         onClose={() => { setIsAddModalOpen(false); setEditingRecord(null); }}
         title={editingRecord ? "Atualizar Lançamento Alpha" : "Novo Lançamento Tesouraria"}
       >
-        <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-8" onSubmit={handleSubmit}>
           <div className="space-y-3">
             <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Descrição do Lançamento</label>
-            <input defaultValue={editingRecord?.description} required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Ex: Honorários Sucumbenciais Silva" />
+            <input
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              required
+              className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner"
+              placeholder="Ex: Honorários Sucumbenciais Silva"
+            />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
-              <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Valor Alpha (BRL)</label>
-              <input defaultValue={editingRecord?.amount} required type="text" className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="R$ 0,00" />
+              <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Valor Alpha (Ex: 1.500,00)</label>
+              <input
+                value={formData.amount}
+                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                required
+                type="text"
+                className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner"
+                placeholder="0,00"
+              />
             </div>
             <div className="space-y-3">
               <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Modalidade</label>
-              <select className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner appearance-none">
+              <select
+                value={formData.type}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
+                className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner appearance-none"
+              >
                 <option value="Income">Receita (Inflow)</option>
                 <option value="Expense">Despesa (Outflow)</option>
               </select>
@@ -166,11 +253,20 @@ export const FinancialPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Data Competência</label>
-              <input defaultValue={editingRecord?.date} type="date" className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" />
+              <input
+                value={formData.date}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                type="date"
+                className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner"
+              />
             </div>
             <div className="space-y-3">
               <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Categoria Alpha</label>
-              <select className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner appearance-none">
+              <select
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner appearance-none"
+              >
                 <option>Honorários Alpha</option>
                 <option>Custos Operacionais</option>
                 <option>Infraestrutura Office</option>
@@ -180,8 +276,8 @@ export const FinancialPage: React.FC = () => {
           </div>
           <div className="pt-8 flex flex-col sm:flex-row gap-6 border-t border-slate-100 dark:border-zinc-900">
             <button type="button" onClick={() => { setIsAddModalOpen(false); setEditingRecord(null); }} className="flex-1 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-950 transition-all">Abortar</button>
-            <button type="submit" onClick={() => { setIsAddModalOpen(false); setEditingRecord(null); }} className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all">
-              {editingRecord ? "Efetivar Governança" : "Confirmar Lançamento Alpha"}
+            <button type="submit" disabled={loading} className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all disabled:opacity-50">
+              {loading ? "Sincronizando..." : editingRecord ? "Efetivar Governança" : "Confirmar Lançamento Alpha"}
             </button>
           </div>
         </form>

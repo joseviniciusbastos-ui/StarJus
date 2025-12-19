@@ -17,7 +17,8 @@ import {
   ExternalLink,
   Sun,
   Moon,
-  ZapIcon
+  ZapIcon,
+  Shield
 } from 'lucide-react';
 import { ProfileModal } from './ProfileModal';
 import { Logo } from '../ui/Logo';
@@ -118,6 +119,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     { id: 'processes', name: 'Processos', icon: Scale },
     { id: 'financial', name: 'Financeiro', icon: CircleDollarSign },
     { id: 'reports', name: 'Métricas BI', icon: PieChart },
+    { id: 'audit_logs', name: 'Auditoria Alpha', icon: Shield },
   ];
 
   return (

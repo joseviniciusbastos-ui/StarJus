@@ -7,6 +7,7 @@ import {
 import { Client } from '../../types';
 import { Modal } from '../ui/Modal';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../lib/AuthContext';
 
 export const ClientsPage: React.FC = () => {
   const [clients, setClients] = useState<Client[]>([]);
@@ -16,6 +17,7 @@ export const ClientsPage: React.FC = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const { officeId } = useAuth();
 
   useEffect(() => {
     fetchClients();
@@ -25,7 +27,8 @@ export const ClientsPage: React.FC = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('clients')
-      .select('*');
+      .select('*')
+      .order('created_at', { ascending: false });
 
     if (data) {
       const mappedData: Client[] = data.map(c => ({
@@ -37,11 +40,47 @@ export const ClientsPage: React.FC = () => {
         status: c.status as any,
         activeCases: c.active_cases || 0,
         address: c.address || '',
-        interactions: [] // Placeholder
+        interactions: []
       }));
       setClients(mappedData);
     }
     setLoading(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    const clientData = {
+      name: formData.get('name') as string,
+      email: formData.get('email') as string,
+      phone: formData.get('phone') as string,
+      address: formData.get('address') as string,
+      office_id: officeId,
+      status: 'Active',
+      type: 'Individual'
+    };
+
+    if (editingClient) {
+      const { error } = await supabase
+        .from('clients')
+        .update(clientData)
+        .eq('id', editingClient.id);
+
+      if (!error) {
+        setEditingClient(null);
+        fetchClients();
+      }
+    } else {
+      const { error } = await supabase
+        .from('clients')
+        .insert([clientData]);
+
+      if (!error) {
+        setIsCreateModalOpen(false);
+        fetchClients();
+      }
+    }
   };
 
   const filteredClients = clients.filter(c =>
@@ -145,28 +184,28 @@ export const ClientsPage: React.FC = () => {
         onClose={() => { setIsCreateModalOpen(false); setEditingClient(null); }}
         title={editingClient ? "Atualizar Perfil Master" : "Registrar Novo Cliente Alpha"}
       >
-        <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-8" onSubmit={handleSubmit}>
           <div className="space-y-3">
             <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Denominação Jurídica</label>
-            <input defaultValue={editingClient?.name} required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Nome Completo ou Razão Social" />
+            <input name="name" defaultValue={editingClient?.name} required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Nome Completo ou Razão Social" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Email Master</label>
-              <input defaultValue={editingClient?.email} required type="email" className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="exemplo@alpha.com" />
+              <input name="email" defaultValue={editingClient?.email} required type="email" className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="exemplo@alpha.com" />
             </div>
             <div className="space-y-3">
               <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Canal de Contato (Fone)</label>
-              <input defaultValue={editingClient?.phone} required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="(00) 00000-0000" />
+              <input name="phone" defaultValue={editingClient?.phone} required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="(00) 00000-0000" />
             </div>
           </div>
           <div className="space-y-3">
             <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Localização Alpha (Endereço)</label>
-            <input defaultValue={editingClient?.address} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Rua, Número, Bairro, Cidade/UF" />
+            <input name="address" defaultValue={editingClient?.address} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Rua, Número, Bairro, Cidade/UF" />
           </div>
           <div className="pt-8 flex flex-col sm:flex-row gap-6 border-t border-slate-100 dark:border-zinc-900">
             <button type="button" onClick={() => { setIsCreateModalOpen(false); setEditingClient(null); }} className="flex-1 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-950 transition-all">Cancelar</button>
-            <button type="submit" onClick={() => { setIsCreateModalOpen(false); setEditingClient(null); }} className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all">
+            <button type="submit" className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all">
               {editingClient ? "Efetivar Governança" : "Confirmar Cliente Alpha"}
             </button>
           </div>

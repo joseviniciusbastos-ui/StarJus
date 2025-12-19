@@ -11,12 +11,13 @@ import { FinancialPage } from './components/dashboard/FinancialPage';
 import { ProductivityPage } from './components/dashboard/ProductivityPage';
 import { CondosPage } from './components/dashboard/CondosPage';
 import { ReportsPage } from './components/dashboard/ReportsPage';
+import { AuditLogsPage } from './components/dashboard/AuditLogsPage';
 // Added missing Users icon import
 import { AlertCircle, TrendingUp, ArrowUpRight, Sparkles, Settings2, Check, X, LayoutGrid, Users, ArrowRight } from 'lucide-react';
 import { Modal } from './components/ui/Modal';
 import { AuthProvider, useAuth } from './lib/AuthContext';
 
-export type SubView = 'dashboard_main' | 'productivity_hub' | 'clients' | 'condos' | 'processes' | 'financial' | 'reports';
+export type SubView = 'dashboard_main' | 'productivity_hub' | 'clients' | 'condos' | 'processes' | 'financial' | 'reports' | 'audit_logs';
 
 const AppContent: React.FC = () => {
   const { session, loading, signOut } = useAuth();
@@ -76,6 +77,7 @@ const AppContent: React.FC = () => {
       case 'processes': return <ProcessesPage />;
       case 'financial': return <FinancialPage />;
       case 'reports': return <ReportsPage />;
+      case 'audit_logs': return <AuditLogsPage />;
       case 'dashboard_main':
       default:
         return (
