@@ -61,9 +61,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <h1 className="text-2xl font-black text-slate-950 dark:text-white mb-2">
             Star<span className="gold-gradient-text">Jus</span>
           </h1>
-          <p className="text-xs font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest">
-            Sistema Alpha
-          </p>
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-gold-500 animate-pulse" />
+            <span className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-[0.3em]">
+              Node Secure
+            </span>
+          </div>
         </div>
 
         <nav className="px-4 space-y-2">
@@ -75,8 +78,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                 setIsMobileMenuOpen(false);
               }}
               className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black text-sm transition-all ${isActive(item.path)
-                  ? 'bg-gold-500 text-black shadow-xl'
-                  : 'text-slate-600 dark:text-zinc-500 hover:bg-slate-100 dark:hover:bg-zinc-900'
+                ? 'bg-gold-500 text-black shadow-xl'
+                : 'text-slate-600 dark:text-zinc-500 hover:bg-slate-100 dark:hover:bg-zinc-900'
                 }`}
             >
               <item.icon size={20} />

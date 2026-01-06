@@ -1,22 +1,78 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Briefcase, Clock, TrendingUp, ArrowUpRight } from 'lucide-react';
 import { StatMetric } from '../../types';
 import { useAuth } from '../../lib/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 export const StatsGrid: React.FC = () => {
   const { officeId } = useAuth();
+  const [stats, setStats] = useState<StatMetric[]>([
+    { label: "Processos Ativos", value: "...", trend: "Carregando", icon: Briefcase, isPositive: true },
+    { label: "Prazos Críticos", value: "...", trend: "Sincronizando", icon: Clock, isPositive: false },
+    { label: "Receita Financeira", value: "...", trend: "Calculando", icon: TrendingUp, isPositive: true },
+  ]);
 
-  const stats: StatMetric[] = [
-    { label: "Processos Ativos", value: "124", trend: "+2 esta semana", icon: Briefcase, isPositive: true },
-    { label: "Prazos Críticos", value: "03", trend: "Fatais Hoje", icon: Clock, isPositive: false },
-    { label: "Receita Financeira", value: "R$ 15.2k", trend: "+12% Growth", icon: TrendingUp, isPositive: true },
-  ];
+  useEffect(() => {
+    if (!officeId) return;
+
+    const fetchStats = async () => {
+      try {
+        // 1. Fetch Active Processes Count
+        const { count: processesCount } = await supabase
+          .from('processes')
+          .select('*', { count: 'exact', head: true })
+          .eq('office_id', officeId)
+          .eq('status', 'Active');
+
+        // 2. Fetch Financial Revenue (Sum of amount_brl)
+        const { data: financialData } = await supabase
+          .from('financial_records')
+          .select('amount_brl')
+          .eq('office_id', officeId)
+          .eq('type', 'Income');
+
+        const totalRevenue = (financialData as { amount_brl: number | null }[] | null)?.reduce((acc, curr) => acc + (curr.amount_brl || 0), 0) || 0;
+
+        // 3. Fetch Critical Deadlines (Static logic for now, could query tasks)
+        // For now, we'll keep it simple or look at a specific 'deadlines' logic if exists
+        const criticalDeadlines = 0; // Placeholder for real logic
+
+        setStats([
+          {
+            label: "Processos Ativos",
+            value: (processesCount || 0).toString(),
+            trend: "+0 esta semana",
+            icon: Briefcase,
+            isPositive: true
+          },
+          {
+            label: "Prazos Críticos",
+            value: criticalDeadlines.toString().padStart(2, '0'),
+            trend: "Fatais Hoje",
+            icon: Clock,
+            isPositive: false
+          },
+          {
+            label: "Receita Financeira",
+            value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', notation: 'compact' }).format(totalRevenue),
+            trend: "+0% Growth",
+            icon: TrendingUp,
+            isPositive: true
+          },
+        ]);
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, [officeId]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
       {stats.map((stat, idx) => (
         <div key={idx} className="premium-card rounded-[3rem] p-10 md:p-12 group relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-gold-500/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-br from-gold-500/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="flex items-start justify-between mb-8 relative z-10">
             <div>
               <p className="text-[10px] font-black text-slate-500 dark:text-zinc-600 uppercase tracking-[0.4em] mb-4 leading-none">{stat.label}</p>
@@ -25,8 +81,8 @@ export const StatsGrid: React.FC = () => {
               </h3>
             </div>
             <div className={`p-4 md:p-5 rounded-2xl border transition-all duration-500 ${stat.label.includes('Prazos')
-                ? 'bg-red-500 text-white border-red-600 shadow-xl shadow-red-500/20'
-                : 'bg-slate-50 dark:bg-zinc-950 text-gold-600 border-slate-200 dark:border-zinc-800 group-hover:bg-gold-500 group-hover:text-black group-hover:border-gold-500'
+              ? 'bg-red-500 text-white border-red-600 shadow-xl shadow-red-500/20'
+              : 'bg-slate-50 dark:bg-zinc-950 text-gold-600 border-slate-200 dark:border-zinc-800 group-hover:bg-gold-500 group-hover:text-black group-hover:border-gold-500'
               }`}>
               <stat.icon size={26} />
             </div>

@@ -1,11 +1,11 @@
 import React from 'react';
-import { Scale } from 'lucide-react';
 
 interface LogoProps {
   className?: string;
   size?: number;
   showText?: boolean;
   textColor?: string;
+  animate?: boolean;
 }
 
 export const Logo: React.FC<LogoProps> = ({
@@ -13,18 +13,21 @@ export const Logo: React.FC<LogoProps> = ({
   size = 72,
   showText = true,
   textColor = "text-white",
+  animate = true
 }) => {
   return (
     <div className={`flex items-center ${className}`}>
-      {/* Ícone sem imagem de fundo */}
+      {/* Logo Image - Usando o favicon/logomarca original */}
       <div className="relative group shrink-0">
-        <div
-          className="relative z-10 bg-gradient-to-br from-gold-500 to-gold-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-gold-500/30 transition-all duration-300 group-hover:scale-105"
-          style={{ width: size, height: size }}
-        >
-          <Scale className="text-black" size={size * 0.55} strokeWidth={2.5} />
-        </div>
-        <div className="absolute inset-0 bg-gold-500/20 blur-xl rounded-full -z-10 group-hover:bg-gold-500/30 transition-all" />
+        <img
+          src="/favicon.png"
+          alt="StarJus Logo"
+          width={size}
+          height={size}
+          className={`relative z-10 rounded-2xl transition-all duration-300 ${animate ? 'hover:scale-105' : ''}`}
+        />
+        {/* Brilho sutil atrás da logo */}
+        <div className="absolute inset-0 bg-gold-500/10 blur-xl rounded-full -z-10" />
       </div>
 
       {showText && (

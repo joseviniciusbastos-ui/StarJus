@@ -18,6 +18,9 @@ import { Toaster } from 'react-hot-toast';
 
 // Dashboard Main View
 const DashboardMain: React.FC = () => {
+  const { session } = useAuth();
+  const userName = session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || 'Gestor';
+
   return (
     <div className="space-y-10 md:space-y-12 animate-fade-in-up">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
@@ -25,14 +28,14 @@ const DashboardMain: React.FC = () => {
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-gold-500 animate-pulse" />
             <span className="text-[10px] font-black uppercase tracking-[0.5em] text-gold-600 dark:text-gold-500 leading-none">
-              Status: Node 12-Alpha Secure
+              Status: Enterprise Secure Node
             </span>
           </div>
           <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-slate-950 dark:text-white leading-none">
             Dashboard <span className="gold-gradient-text italic font-serif">Operacional.</span>
           </h1>
           <p className="text-slate-600 dark:text-zinc-500 font-bold text-base md:text-lg">
-            Dr. Carlos Silva • Governança Master
+            {userName} • Governança Digital
           </p>
         </div>
       </div>

@@ -7,59 +7,89 @@ body {
 }
 
 .gold-gradient-text {
-  background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+  background: linear-gradient(135deg, #d4af37 0%, #fcf6ba 45%, #d4af37 50%, #fcf6ba 55%, #b8860b 100%);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  animation: goldShine 5s linear infinite;
+  font-weight: 800;
 }
 
-/* Scrollbar Alpha */
+/* Scrollbar StarJus */
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
+  background: linear-gradient(to bottom, transparent, #d4af37, transparent);
   border-radius: 20px;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background-color: #1e293b;
+  background: linear-gradient(to bottom, transparent, #3f3f46, transparent);
 }
 
-/* Premium Cards */
+/* Premium Cards - Production Grade */
 .premium-card {
-  background-color: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 2rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.04);
+  background: white;
+  border: 1px solid #f1f5f9;
+  border-radius: 2.5rem;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.03);
 }
 
 .dark .premium-card {
-  background-color: black;
-  border-color: #18181b;
-  box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.7);
+  background: linear-gradient(135deg, #09090b 0%, #000000 100%);
+  border: 1px solid #18181b;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
 .premium-card:hover {
-  border-color: #bf953f;
-  transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-color: #d4af37;
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.1);
 }
 
 .dark .premium-card:hover {
-  box-shadow: 0 0 50px -10px rgba(191, 149, 63, 0.15);
+  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 0 0 50px -10px rgba(212, 175, 55, 0.15);
+}
+
+/* Interactive Elements Enhancements */
+.interactive-gold {
+  transition: all 0.3s ease;
+}
+
+.interactive-gold:hover {
+  filter: brightness(1.2) drop-shadow(0 0 8px rgba(212, 175, 55, 0.4));
 }
 
 /* Premium Selection */
 ::selection {
-  background-color: rgba(191, 149, 63, 0.3);
-  color: white;
-  text-shadow: 0 0 10px rgba(191, 149, 63, 0.5);
+  background-color: #d4af37;
+  color: #000;
 }
 
 .dark ::selection {
-  background-color: rgba(191, 149, 63, 0.4);
-  color: white;
+  background-color: #fcd34d;
+  color: #000;
+}
+
+@keyframes goldShine {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
