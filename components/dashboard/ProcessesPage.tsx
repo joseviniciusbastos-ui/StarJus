@@ -66,17 +66,22 @@ export const ProcessesPage: React.FC = () => {
     e.preventDefault();
     if (!newComment.trim() || !selectedProcess) return;
 
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const commentData = {
+      process_id: selectedProcess.id,
+      content: newComment,
+      user_id: user.id,
+    };
+
     const { error } = await supabase
       .from('process_comments')
-      .insert([
-        {
-          process_id: parseInt(selectedProcess.id),
-          content: newComment.trim(),
-          office_id: officeId
-        }
-      ]);
+      .insert([commentData]);
 
-    if (!error) {
+    if (error) {
+      console.error('Error adding comment:', error);
+    } else {
       setNewComment('');
       // Realtime will handle the update
     }
@@ -116,18 +121,17 @@ export const ProcessesPage: React.FC = () => {
     setLoading(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+    const formData = new FormData(e.target as HTMLFormElement);
 
     const processData = {
       title: formData.get('title') as string,
-      number: formData.get('number') as string,
-      court: formData.get('court') as string,
-      value_text: formData.get('value') as string,
+      process_number: formData.get('number') as string,
+      court: formData.get('court') as string || null,
+      status: 'active' as const,
       client_id: formData.get('client_id') ? parseInt(formData.get('client_id') as string) : null,
       office_id: officeId,
-      status: 'Active'
     };
 
     if (editingProcess) {
@@ -136,18 +140,22 @@ export const ProcessesPage: React.FC = () => {
         .update(processData)
         .eq('id', editingProcess.id);
 
-      if (!error) {
-        setEditingProcess(null);
+      if (error) {
+        console.error('Error updating process:', error);
+      } else {
         fetchProcesses();
+        setEditingProcess(null);
       }
     } else {
       const { error } = await supabase
         .from('processes')
         .insert([processData]);
 
-      if (!error) {
-        setIsAddModalOpen(false);
+      if (error) {
+        console.error('Error creating process:', error);
+      } else {
         fetchProcesses();
+        setIsAddModalOpen(false);
       }
     }
   };

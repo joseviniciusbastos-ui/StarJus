@@ -244,18 +244,18 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, o
             <button
               type="submit"
               disabled={loading}
-              className={`group relative w-full flex items-center justify-center gap-3 py-6 bg-gradient-to-r from-gold-600 via-gold-500 to-gold-600 text-black rounded-[2rem] shadow-[0_20px_40px_-15px_rgba(212,175,55,0.3)] font-black uppercase tracking-[0.2em] text-[11px] transition-all hover:scale-[1.02] hover:shadow-[0_25px_50px_-12px_rgba(212,175,55,0.4)] active:scale-[0.98] overflow-hidden ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`group relative w-full flex items-center justify-center gap-3 py-6 bg-gradient-to-r from-gold-500 via-gold-400 to-gold-500 hover:from-gold-400 hover:via-gold-300 hover:to-gold-400 text-black rounded-[2rem] shadow-[0_20px_50px_-12px_rgba(212,175,55,0.6)] font-black uppercase tracking-[0.2em] text-sm transition-all hover:scale-[1.02] hover:shadow-[0_30px_60px_-15px_rgba(212,175,55,0.7)] active:scale-[0.98] overflow-hidden border-2 border-gold-400/50 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               {loading ? (
                 <>
                   <div className="w-5 h-5 border-[3px] border-black/30 border-t-black rounded-full animate-spin" />
-                  Sincronizando...
+                  SINCRONIZANDO...
                 </>
               ) : (
                 <>
-                  Confirmar Adesão
-                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                  CONFIRMAR ADESÃO
+                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform animate-pulse" />
                 </>
               )}
             </button>
