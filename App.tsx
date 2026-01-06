@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { LoginPage } from './components/auth/LoginPage';
 import { RegisterPage } from './components/auth/RegisterPage';
 import { DashboardLayout } from './components/dashboard/DashboardLayout';
@@ -65,27 +65,34 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     );
   }
 
-  if (!session) {
-    return <Navigate to="/login" replace />;
-  }
-
   return <>{children}</>;
 };
 
 // App Routes Component
 const AppRoutes: React.FC = () => {
   const { session } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <Routes>
       {/* Public Routes */}
       <Route
         path="/login"
-        element={session ? <Navigate to="/" replace /> : <LoginPage onLogin={() => { }} onRegisterClick={() => { }} />}
+        element={session ? <Navigate to="/" replace /> : (
+          <LoginPage
+            onLogin={() => navigate('/')}
+            onRegisterClick={() => navigate('/register')}
+          />
+        )}
       />
       <Route
         path="/register"
-        element={session ? <Navigate to="/" replace /> : <RegisterPage onRegisterSuccess={() => { }} onBackToLogin={() => { }} />}
+        element={session ? <Navigate to="/" replace /> : (
+          <RegisterPage
+            onRegisterSuccess={() => navigate('/login')}
+            onBackToLogin={() => navigate('/login')}
+          />
+        )}
       />
 
       {/* Protected Routes */}
