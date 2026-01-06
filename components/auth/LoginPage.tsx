@@ -121,24 +121,40 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onRegisterClick }
               </div>
             </div>
 
+            {error && (
+              <div className="p-4 bg-red-500/10 border-2 border-red-500 rounded-2xl animate-pulse">
+                <p className="text-sm text-red-500 font-bold text-center">{error}</p>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-3 py-5 bg-gradient-to-r from-gold-500 via-gold-400 to-gold-500 hover:from-gold-400 hover:via-gold-300 hover:to-gold-400 text-black rounded-2xl shadow-[0_20px_50px_-15px_rgba(212,175,55,0.5)] font-black uppercase tracking-widest text-sm transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed border-2 border-gold-400/50"
+              className="w-full flex items-center justify-center gap-3 py-6 bg-gradient-to-r from-yellow-400 via-gold-400 to-yellow-500 hover:from-yellow-300 hover:via-gold-300 hover:to-yellow-400 text-black rounded-2xl shadow-[0_20px_60px_-10px_rgba(250,204,21,0.8)] font-black uppercase tracking-widest text-base border-2 border-yellow-300/50 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_25px_70px_-12px_rgba(250,204,21,1)]"
             >
-              {loading ? "AUTENTICANDO..." : "ACESSAR PAINEL"}
-              {!loading && <ArrowRight size={20} className="animate-pulse" />}
+              {loading ? (
+                <>
+                  <div className="w-6 h-6 border-3 border-black/30 border-t-black rounded-full animate-spin" />
+                  AUTENTICANDO...
+                </>
+              ) : (
+                <>
+                  <ArrowRight size={24} className="animate-pulse" />
+                  ACESSAR PAINEL AGORA
+                </>
+              )}
             </button>
           </form>
 
           <div className="text-center pt-8 border-t border-zinc-900">
             <p className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-4">NOVO MEMBRO?</p>
             <button
+              type="button"
               onClick={onRegisterClick}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white hover:bg-gold-500 text-black rounded-2xl font-black text-sm uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-lg"
+              className="inline-flex items-center gap-2 px-10 py-5 bg-gradient-to-r from-white to-gray-100 hover:from-gold-400 hover:to-gold-500 text-black rounded-2xl font-black text-base uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-xl hover:shadow-2xl"
             >
               CRIAR CONTA AGORA
-              <ArrowRight size={18} className="animate-pulse" />
+              <ArrowRight size={20} className="animate-pulse" />
             </button>
           </div>
         </div>
