@@ -5,6 +5,7 @@ import { useAuth } from '../../lib/AuthContext';
 import { Modal } from '../ui/Modal';
 import { Process, Client } from '../../types';
 import { FileUploader } from '../ui/FileUploader';
+import { AIInsightsPanel } from '../ai/AIInsightsPanel';
 
 export const ProcessesPage: React.FC = () => {
   const [processes, setProcesses] = useState<Process[]>([]);
@@ -258,6 +259,15 @@ export const ProcessesPage: React.FC = () => {
                 <p className="text-xl font-black text-gold-500 tracking-tight">{selectedProcess.value}</p>
               </div>
             </div>
+
+            {/* AI Insights Panel */}
+            <AIInsightsPanel
+              processId={selectedProcess.id}
+              processNumber={selectedProcess.number}
+              processTitle={selectedProcess.title}
+              court={selectedProcess.court || 'Não informado'}
+              movements={[]}
+            />
 
             <div className="space-y-6">
               <h4 className="text-[11px] font-black text-zinc-600 uppercase tracking-[0.3em] flex items-center gap-3">

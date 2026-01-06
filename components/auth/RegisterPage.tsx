@@ -11,6 +11,7 @@ interface RegisterPageProps {
 export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, onBackToLogin }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [formData, setFormData] = useState({
     officeName: '',
     oab: '',
@@ -29,6 +30,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, o
       email: formData.email,
       password: formData.password,
       options: {
+        emailRedirectTo: 'https://www.starjus.com.br',
         data: {
           full_name: formData.fullName,
           office_name: formData.officeName,
@@ -45,9 +47,69 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, o
 
     if (authData.user) {
       // Office and Member are automatically created by DB Trigger
-      onRegisterSuccess();
+      setShowSuccess(true);
+      setLoading(false);
     }
   };
+
+  if (showSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black p-6 relative overflow-hidden selection:bg-gold-500/30 selection:text-white">
+        {/* Decorative background */}
+        <div className="absolute top-0 right-0 w-1/3 h-full bg-gold-600/5 -skew-x-12 transform translate-x-20 z-0" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gold-500/10 rounded-full blur-[160px] z-0" />
+
+        <div className="relative z-10 w-full max-w-2xl bg-zinc-900/90 backdrop-blur-2xl rounded-[3.5rem] p-12 md:p-20 shadow-[0_0_100px_-20px_rgba(0,0,0,0.8),0_0_40px_-15px_rgba(212,175,55,0.2)] border border-zinc-800/50 text-center space-y-10 animate-fade-in">
+          <div className="flex justify-center">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gold-500/20 blur-2xl rounded-full" />
+              <Logo size={120} showText={false} />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter italic font-serif">Adesão Confirmada.</h2>
+            <p className="text-zinc-400 font-medium max-w-md mx-auto leading-relaxed">
+              O ecossistema digital do <span className="text-white font-bold">{formData.officeName}</span> foi ativado. Enviamos um token de segurança para seu e-mail.
+            </p>
+          </div>
+
+          <div className="bg-black/40 border border-zinc-800/50 rounded-3xl p-8 space-y-6 text-left max-w-md mx-auto">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-gold-500/10 flex items-center justify-center border border-gold-500/20">
+                <User size={18} className="text-gold-500" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Operador</p>
+                <p className="text-sm text-white font-bold">{formData.fullName}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-gold-500/10 flex items-center justify-center border border-gold-500/20">
+                <BadgeCheck size={18} className="text-gold-500" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">OAB</p>
+                <p className="text-sm text-white font-bold">{formData.oab}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-4">
+            <button
+              onClick={onBackToLogin}
+              className="group relative inline-flex items-center justify-center gap-3 px-10 py-5 bg-white text-black rounded-full font-black uppercase tracking-[0.2em] text-[11px] transition-all hover:scale-105 active:scale-95 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gold-500/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+              Acessar Portal <ArrowRight size={18} />
+            </button>
+          </div>
+
+          <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">StarJus Legal Intelligence</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black p-6 relative overflow-hidden selection:bg-gold-500/30 selection:text-white">
@@ -161,15 +223,15 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, o
               </div>
             </div>
 
-            <div className="flex items-start gap-4 bg-black/40 p-6 rounded-[2rem] border border-zinc-800">
+            <div className="flex items-start gap-4 bg-black/40 p-6 rounded-[2rem] border border-zinc-800 hover:border-zinc-700 transition-colors">
               <input
                 id="terms"
                 type="checkbox"
                 required
-                className="h-5 w-5 mt-1 text-gold-600 focus:ring-gold-500 border-zinc-700 bg-zinc-900 rounded-lg cursor-pointer"
+                className="h-5 w-5 mt-1 text-gold-600 focus:ring-gold-500 border-zinc-700 bg-zinc-900 rounded-xl cursor-pointer transition-all"
               />
               <label htmlFor="terms" className="text-xs text-zinc-500 leading-relaxed font-medium cursor-pointer">
-                Declaro ciência dos <span className="text-gold-500 font-black uppercase tracking-widest text-[9px]">Termos de Uso</span> e autorizo o processamento de dados sob as diretrizes da <span className="text-gold-500 font-black uppercase tracking-widest text-[9px]">LGPD Enterprise</span>.
+                Declaro ciência dos <span className="text-gold-500 font-extrabold uppercase tracking-widest text-[9px]">Termos de Uso</span> e autorizo o processamento de dados sob as diretrizes da <span className="text-gold-500 font-extrabold uppercase tracking-widest text-[9px]">LGPD Enterprise</span>.
               </label>
             </div>
 
@@ -182,17 +244,18 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, o
             <button
               type="submit"
               disabled={loading}
-              className={`w-full flex items-center justify-center gap-3 py-6 bg-gradient-to-r from-gold-600 to-gold-700 hover:from-gold-500 hover:to-gold-600 text-black rounded-[2rem] shadow-2xl shadow-gold-900/10 font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-[0.98] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`group relative w-full flex items-center justify-center gap-3 py-6 bg-gradient-to-r from-gold-600 via-gold-500 to-gold-600 text-black rounded-[2rem] shadow-[0_20px_40px_-15px_rgba(212,175,55,0.3)] font-black uppercase tracking-[0.2em] text-[11px] transition-all hover:scale-[1.02] hover:shadow-[0_25px_50px_-12px_rgba(212,175,55,0.4)] active:scale-[0.98] overflow-hidden ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               {loading ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                  Processando...
+                  <div className="w-5 h-5 border-[3px] border-black/30 border-t-black rounded-full animate-spin" />
+                  Sincronizando...
                 </>
               ) : (
                 <>
                   Confirmar Adesão
-                  <ArrowRight size={18} />
+                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </button>

@@ -94,11 +94,16 @@ export interface FinancialRecord {
   id: number;
   description: string;
   type: 'Income' | 'Expense';
-  amount: string;
+  amount: string; // Backward compatibility
+  amount_numeric: number; // For calculations
+  currency: 'BRL' | 'USD' | 'EUR' | 'GBP' | 'JPY' | 'CNY' | 'ARS';
+  amount_brl: number; // Always store BRL equivalent
+  exchange_rate: number;
   date: string;
   category: string;
   status: 'Paid' | 'Pending';
 }
+
 
 export interface StatMetric {
   label: string;
