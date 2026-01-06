@@ -124,10 +124,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onRegisterClick }
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-3 py-5 bg-gradient-to-r from-gold-600 to-gold-700 hover:from-gold-500 hover:to-gold-600 text-black rounded-2xl shadow-xl shadow-gold-900/10 font-black uppercase tracking-widest text-[10px] transition-all active:scale-[0.98] disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-3 py-5 bg-gradient-to-r from-gold-500 via-gold-400 to-gold-500 hover:from-gold-400 hover:via-gold-300 hover:to-gold-400 text-black rounded-2xl shadow-[0_20px_50px_-15px_rgba(212,175,55,0.5)] font-black uppercase tracking-widest text-sm transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed border-2 border-gold-400/50"
             >
-              {loading ? "Autenticando..." : "Acessar Painel"}
-              {!loading && <ArrowRight size={18} />}
+              {loading ? "AUTENTICANDO..." : "ACESSAR PAINEL"}
+              {!loading && <ArrowRight size={20} className="animate-pulse" />}
             </button>
 
             <div className="relative py-4">
@@ -151,9 +151,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onRegisterClick }
           </form>
 
           <div className="text-center pt-8 border-t border-zinc-900">
-            <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-4">Novo Membro?</p>
-            <button onClick={onRegisterClick} className="text-sm font-black text-white hover:text-gold-500 transition-colors">
-              Iniciar Registro Estratégico
+            <p className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-4">NOVO MEMBRO?</p>
+            <button
+              onClick={onRegisterClick}
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white hover:bg-gold-500 text-black rounded-2xl font-black text-sm uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-lg"
+            >
+              CRIAR CONTA AGORA
+              <ArrowRight size={18} className="animate-pulse" />
             </button>
           </div>
         </div>
