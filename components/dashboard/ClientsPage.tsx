@@ -20,15 +20,16 @@ export const ClientsPage: React.FC = () => {
   const { officeId } = useAuth();
 
   useEffect(() => {
-    fetchClients();
-  }, []);
+    if (officeId) fetchClients();
+  }, [officeId]);
 
   const fetchClients = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    const { data, error } = await (supabase
       .from('clients')
       .select('*')
-      .order('created_at', { ascending: false });
+      .eq('office_id', officeId)
+      .order('created_at', { ascending: false }) as any);
 
     if (data) {
       const mappedData: Client[] = data.map(c => ({
@@ -62,19 +63,19 @@ export const ClientsPage: React.FC = () => {
     };
 
     if (editingClient) {
-      const { error } = await supabase
+      const { error } = await (supabase
         .from('clients')
         .update(clientData)
-        .eq('id', editingClient.id);
+        .eq('id', editingClient.id) as any);
 
       if (!error) {
         setEditingClient(null);
         fetchClients();
       }
     } else {
-      const { error } = await supabase
+      const { error } = await (supabase
         .from('clients')
-        .insert([clientData]);
+        .insert([clientData]) as any);
 
       if (!error) {
         setIsCreateModalOpen(false);

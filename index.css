@@ -93,3 +93,54 @@ body {
     background-position: 0% 50%;
   }
 }
+
+/* Soft Contrast Theme - Ivory Business */
+.soft-theme,
+.soft-theme body {
+  background-color: #fdfcfb !important;
+  color: #1a1a1a !important;
+}
+
+.soft-theme .premium-card {
+  background: #ffffff !important;
+  border: 1px solid #f3f4f6 !important;
+  box-shadow: 0 15px 40px -15px rgba(0, 0, 0, 0.04) !important;
+}
+
+.soft-theme .premium-card:hover {
+  border-color: #d4af37 !important;
+  box-shadow: 0 25px 50px -20px rgba(212, 175, 55, 0.15) !important;
+}
+
+.soft-theme .bg-slate-50,
+.soft-theme .bg-zinc-950,
+.soft-theme .dark\:bg-zinc-950,
+.soft-theme .dark\:bg-black,
+.soft-theme .dark\:bg-zinc-900\/50,
+.soft-theme .bg-white\/80,
+.soft-theme .dark\:bg-black\/80 {
+  background-color: #fdfcfb !important;
+}
+
+.soft-theme .text-white,
+.soft-theme .dark\:text-white,
+.soft-theme .text-slate-950,
+.soft-theme .text-slate-900,
+.soft-theme .dark\:text-zinc-300,
+.soft-theme .dark\:text-white {
+  color: #1a1a1a !important;
+}
+
+.soft-theme .bg-zinc-900,
+.soft-theme .dark\:bg-zinc-900 {
+  background-color: #ffffff !important;
+  border-color: #f3f4f6 !important;
+}
+
+.soft-theme .border-zinc-900,
+.soft-theme .dark\:border-zinc-900,
+.soft-theme .dark\:border-zinc-800,
+.soft-theme .border-slate-200,
+.soft-theme .dark\:border-zinc-900 {
+  border-color: #f3f4f6 !important;
+}

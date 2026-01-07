@@ -23,6 +23,7 @@ export const ProfilePage: React.FC = () => {
     const [officeName, setOfficeName] = useState('');
     const [fullName, setFullName] = useState('');
     const [initialFullName, setInitialFullName] = useState('');
+    const [theme, setTheme] = useState<'high' | 'soft'>(localStorage.getItem('starjus-theme') as any || 'high');
 
     const userEmail = session?.user?.email || '';
     const avatarPlaceholder = "https://ui-avatars.com/api/?name=" + encodeURIComponent(fullName || 'User') + "&background=D4AF37&color=000";
@@ -33,7 +34,25 @@ export const ProfilePage: React.FC = () => {
             fetchMembers();
             fetchProfileData();
         }
+        // Apply theme on load
+        applyTheme(theme);
     }, [officeId]);
+
+    const applyTheme = (t: 'high' | 'soft') => {
+        const root = document.documentElement;
+        if (t === 'soft') {
+            root.classList.add('soft-theme');
+        } else {
+            root.classList.remove('soft-theme');
+        }
+    };
+
+    const handleThemeChange = (newTheme: 'high' | 'soft') => {
+        setTheme(newTheme);
+        applyTheme(newTheme);
+        localStorage.setItem('starjus-theme', newTheme);
+        toast.success(`Tema ${newTheme === 'soft' ? 'Soft Contrast' : 'High Contrast'} aplicado`);
+    };
 
     const fetchProfileData = async () => {
         try {
@@ -251,6 +270,40 @@ export const ProfilePage: React.FC = () => {
                             <div className="space-y-2">
                                 <h4 className="text-[11px] font-black text-zinc-500 uppercase tracking-widest">Tempo Produtivo (MT)</h4>
                                 <p className="text-xs text-zinc-600 leading-relaxed font-bold">Total de horas focadas registradas no sistema este mês.</p>
+                            </div>
+                        </div>
+
+                        {/* Theme Selection */}
+                        <div className="md:col-span-2 premium-card p-10 rounded-[3rem] space-y-8">
+                            <h4 className="text-[11px] font-black text-zinc-500 uppercase tracking-widest ml-1">Preferências de Visão (Experience Center)</h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <button
+                                    onClick={() => handleThemeChange('high')}
+                                    className={`p-8 rounded-[2rem] border-2 transition-all text-left space-y-4 ${theme === 'high' ? 'border-gold-500 bg-gold-500/5' : 'border-zinc-900 bg-zinc-950/50 hover:border-zinc-700'}`}
+                                >
+                                    <div className="flex justify-between items-center">
+                                        <div className="w-8 h-8 rounded-full bg-black border border-gold-500" />
+                                        {theme === 'high' && <CheckCircle2 size={16} className="text-gold-500" />}
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-black text-white uppercase italic">High Contrast</p>
+                                        <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mt-1 italic">Midnight & Gold Professional</p>
+                                    </div>
+                                </button>
+
+                                <button
+                                    onClick={() => handleThemeChange('soft')}
+                                    className={`p-8 rounded-[2rem] border-2 transition-all text-left space-y-4 ${theme === 'soft' ? 'border-gold-500 bg-gold-500/5' : 'border-zinc-900 bg-zinc-950/50 hover:border-zinc-700'}`}
+                                >
+                                    <div className="flex justify-between items-center">
+                                        <div className="w-8 h-8 rounded-full bg-[#FDFCFB] border border-zinc-200 shadow-inner" />
+                                        {theme === 'soft' && <CheckCircle2 size={16} className="text-gold-500" />}
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-black text-white uppercase italic">Soft Contrast</p>
+                                        <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mt-1 italic">Ivory Business Performance</p>
+                                    </div>
+                                </button>
                             </div>
                         </div>
                     </div>

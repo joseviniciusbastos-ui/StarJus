@@ -17,25 +17,30 @@ export const StatsGrid: React.FC = () => {
 
     const fetchStats = async () => {
       try {
-        // 1. Fetch Active Processes Count
-        const { count: processesCount } = await supabase
+        // 1. Fetch Active Processes Count (Case-sensitive fix: 'active')
+        const { count: processesCount } = await (supabase
           .from('processes')
           .select('*', { count: 'exact', head: true })
           .eq('office_id', officeId)
-          .eq('status', 'Active');
+          .eq('status', 'active') as any);
 
-        // 2. Fetch Financial Revenue (Sum of amount_brl)
-        const { data: financialData } = await supabase
+        // 2. Fetch Financial Revenue
+        const { data: financialData } = await (supabase
           .from('financial_records')
           .select('amount_brl')
           .eq('office_id', officeId)
-          .eq('type', 'Income');
+          .eq('type', 'Income') as any);
 
-        const totalRevenue = (financialData as { amount_brl: number | null }[] | null)?.reduce((acc, curr) => acc + (curr.amount_brl || 0), 0) || 0;
+        const totalRevenue = (financialData as any[])?.reduce((acc, curr) => acc + (curr.amount_brl || 0), 0) || 0;
 
-        // 3. Fetch Critical Deadlines (Static logic for now, could query tasks)
-        // For now, we'll keep it simple or look at a specific 'deadlines' logic if exists
-        const criticalDeadlines = 0; // Placeholder for real logic
+        // 3. Fetch Critical Deadlines (Tasks due today or past due, not completed)
+        const today = new Date().toISOString().split('T')[0];
+        const { count: deadlinesCount } = await (supabase
+          .from('tasks')
+          .select('*', { count: 'exact', head: true })
+          .eq('office_id', officeId)
+          .lte('due_date', today)
+          .neq('status', 'Concluído') as any);
 
         setStats([
           {
@@ -47,14 +52,19 @@ export const StatsGrid: React.FC = () => {
           },
           {
             label: "Prazos Críticos",
-            value: criticalDeadlines.toString().padStart(2, '0'),
-            trend: "Fatais Hoje",
+            value: (deadlinesCount || 0).toString().padStart(2, '0'),
+            trend: deadlinesCount && deadlinesCount > 0 ? "Fatais Hoje" : "Monitorados",
             icon: Clock,
-            isPositive: false
+            isPositive: deadlinesCount === 0
           },
           {
             label: "Receita Financeira",
-            value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', notation: 'compact' }).format(totalRevenue),
+            value: new Intl.NumberFormat('pt-BR', {
+              style: 'currency',
+              currency: 'BRL',
+              notation: 'compact',
+              maximumFractionDigits: 1
+            }).format(totalRevenue),
             trend: "+0% Growth",
             icon: TrendingUp,
             isPositive: true

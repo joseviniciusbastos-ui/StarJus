@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Users, Building2, Scale, DollarSign, BarChart3, Shield, Mail, LogOut, Moon, Sun, Menu, X, Clock, Play, Pause, Search, Bell, Calendar } from 'lucide-react';
-import type { SubView } from '../App';
 import { useAuth } from '../../lib/AuthContext';
 import { useTimer } from '../../lib/TimerContext';
 
@@ -85,23 +84,35 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           </div>
         </div>
 
-        <nav className="px-4 space-y-2 max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar">
-          {filteredMenuItems.map((item) => (
-            <button
-              key={item.path}
-              onClick={() => {
-                navigate(item.path);
-                setIsMobileMenuOpen(false);
-              }}
-              className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black text-sm transition-all ${isActive(item.path)
-                ? 'bg-gold-500 text-black shadow-[0_10px_20px_-5px_rgba(212,175,55,0.4)] scale-[1.02]'
-                : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-900 hover:text-slate-950 dark:hover:text-white'
-                }`}
-            >
-              <item.icon size={20} className={isActive(item.path) ? 'text-black' : ''} />
-              <span className={isActive(item.path) ? 'text-black' : ''}>{item.label}</span>
-            </button>
-          ))}
+        <nav className="px-4 space-y-2 max-h-[calc(100vh-400px)] overflow-y-auto custom-scrollbar">
+          {filteredMenuItems.map((item) => {
+            const active = isActive(item.path);
+            return (
+              <button
+                key={item.path}
+                onClick={() => {
+                  navigate(item.path);
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black text-sm transition-all relative group ${active
+                  ? 'bg-gold-500/15 text-gold-500 shadow-[inset_0_0_25px_rgba(212,175,55,0.08)]'
+                  : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-900 hover:text-slate-950 dark:hover:text-white'
+                  }`}
+              >
+                {active && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-gold-500 rounded-r-full shadow-[0_0_15px_rgba(212,175,55,1)]" />
+                )}
+
+                <item.icon
+                  size={20}
+                  className={`transition-all duration-300 ${active ? 'text-gold-500 scale-110 drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]' : 'group-hover:text-gold-500 group-hover:scale-110'}`}
+                />
+                <span className={`transition-all duration-300 ${active ? 'text-gold-500' : 'group-hover:text-gold-500'}`}>
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
         </nav>
 
         {/* Universal Timer Widget in Sidebar */}
@@ -155,7 +166,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       {/* Main Content */}
       <main className="lg:ml-80 min-h-screen">
         {/* Top Handler Bar */}
-        <header className="sticky top-0 right-0 z-30 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-slate-200 dark:border-zinc-900 px-8 py-4 flex items-center justify-between">
+        <header className="sticky top-0 right-0 z-30 bg-white/90 dark:bg-black/90 backdrop-blur-xl border-b border-slate-200 dark:border-zinc-900 px-8 py-5 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-slate-100 dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-zinc-800">
               <Search size={18} className="text-slate-400" />

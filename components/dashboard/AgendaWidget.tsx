@@ -2,12 +2,45 @@
 import React from 'react';
 import { Calendar, ChevronRight, Clock, Info } from 'lucide-react';
 import { useAuth } from '../../lib/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 export const AgendaWidget: React.FC = () => {
-  const { session } = useAuth();
+  const { officeId } = useAuth();
+  const [agendaItems, setAgendaItems] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(false);
 
-  // Real logic would fetch this from Supabase. For now, we show "No events" for production.
-  const agendaItems: any[] = [];
+  React.useEffect(() => {
+    if (!officeId) return;
+
+    const fetchAgenda = async () => {
+      try {
+        setLoading(true);
+        const today = new Date().toISOString().split('T')[0];
+        const { data, error } = await (supabase
+          .from('tasks')
+          .select('*')
+          .eq('office_id', officeId)
+          .eq('due_date', today)
+          .neq('status', 'Concluído')
+          .order('due_date', { ascending: true }) as any);
+
+        if (error) throw error;
+
+        setAgendaItems(data?.map((item: any) => ({
+          id: item.id,
+          time: item.priority === 'High' ? 'URGENTE' : 'HOJE',
+          title: item.title,
+          type: item.tag === 'Judicial' ? 'Audience' : item.priority === 'High' ? 'Deadline' : 'Meeting'
+        })) || []);
+      } catch (error) {
+        console.error('Error fetching agenda:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAgenda();
+  }, [officeId]);
 
   return (
     <div className="premium-card rounded-[3rem] p-8 space-y-8 h-full flex flex-col">
