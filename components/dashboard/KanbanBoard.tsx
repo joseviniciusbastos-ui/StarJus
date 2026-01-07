@@ -314,7 +314,7 @@ export const KanbanBoard: React.FC = () => {
       <Modal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        title="Novo Ticket de Operação Alpha"
+        title="Novo Ticket de Operação"
       >
         <form onSubmit={handleAddTask} className="space-y-8">
           <div className="space-y-3">
@@ -324,7 +324,7 @@ export const KanbanBoard: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-3">
-              <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Prioridade Alpha</label>
+              <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Prioridade</label>
               <select name="priority" className="w-full px-8 py-5 bg-zinc-950 border border-zinc-800 rounded-3xl outline-none text-white font-black transition-all focus:border-gold-500 shadow-inner appearance-none">
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
@@ -339,7 +339,7 @@ export const KanbanBoard: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-3">
-              <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Tag Alpha</label>
+              <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Tag</label>
               <input name="tag" className="w-full px-8 py-5 bg-zinc-950 border border-zinc-800 rounded-3xl outline-none text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Ex: Prazo Judicial" />
             </div>
             <div className="space-y-3">
@@ -361,7 +361,7 @@ export const KanbanBoard: React.FC = () => {
           <div className="pt-8 flex gap-6 border-t border-zinc-900">
             <button type="button" onClick={() => setIsAddModalOpen(false)} className="flex-1 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-all">Cancelar</button>
             <button type="submit" className="flex-[2] py-6 bg-white text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all">
-              Confirmar Ticket Alpha
+              Confirmar Ticket
             </button>
           </div>
         </form>

@@ -178,13 +178,13 @@ export const ProcessesPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div className="space-y-2">
           <h1 className="text-4xl font-black tracking-tighter text-slate-950 dark:text-white uppercase leading-none italic font-serif gold-gradient-text">Litígios Ativos.</h1>
-          <p className="text-slate-500 dark:text-zinc-500 font-black uppercase text-[10px] tracking-[0.4em]">Gestão de Processos Monitorados Alpha</p>
+          <p className="text-slate-500 dark:text-zinc-500 font-black uppercase text-[10px] tracking-[0.4em]">Gestão de Processos Monitorados</p>
         </div>
         <button
           onClick={() => setIsAddModalOpen(true)}
           className="w-full sm:w-auto bg-black dark:bg-white text-white dark:text-black px-10 py-5 rounded-[2rem] font-black uppercase tracking-widest text-[11px] shadow-2xl transition-all flex items-center justify-center gap-3 active:scale-95"
         >
-          <Plus size={18} /> Novo Registro Alpha
+          <Plus size={18} /> Novo Registro
         </button>
       </div>
 
@@ -203,7 +203,7 @@ export const ProcessesPage: React.FC = () => {
           onClick={() => setIsFilterModalOpen(true)}
           className={`px-8 py-4.5 bg-white dark:bg-black border rounded-3xl font-black text-[10px] uppercase tracking-widest transition-all shadow-sm flex items-center justify-center gap-3 ${activeFilter ? 'border-gold-500 text-gold-600' : 'border-slate-200 dark:border-zinc-800 text-slate-500 hover:text-gold-600'}`}
         >
-          <Filter size={18} /> {activeFilter || 'Filtros Alpha'}
+          <Filter size={18} /> {activeFilter || 'Filtros'}
         </button>
       </div>
 
@@ -246,7 +246,7 @@ export const ProcessesPage: React.FC = () => {
       <Modal
         isOpen={!!selectedProcess}
         onClose={() => setSelectedProcess(null)}
-        title="Dossiê Processual Alpha"
+        title="Dossiê Processual"
       >
         {selectedProcess && (
           <div className="space-y-10">
@@ -279,7 +279,7 @@ export const ProcessesPage: React.FC = () => {
 
             <div className="space-y-6">
               <h4 className="text-[11px] font-black text-zinc-600 uppercase tracking-[0.3em] flex items-center gap-3">
-                <FileText size={16} className="text-gold-600" /> Documentação Alpha
+                <FileText size={16} className="text-gold-600" /> Documentação
               </h4>
               <FileUploader
                 entityType="processes"
@@ -290,7 +290,7 @@ export const ProcessesPage: React.FC = () => {
 
             <div className="space-y-6">
               <h4 className="text-[11px] font-black text-zinc-600 uppercase tracking-[0.3em] flex items-center gap-3">
-                <MessageSquare size={16} className="text-gold-600" /> Histórico & Comentários Alpha
+                <MessageSquare size={16} className="text-gold-600" /> Histórico & Comentários
               </h4>
 
               <div className="bg-zinc-900/50 rounded-[2.5rem] border border-zinc-800/50 p-6 space-y-6">
@@ -341,7 +341,7 @@ export const ProcessesPage: React.FC = () => {
       <Modal
         isOpen={isAddModalOpen || !!editingProcess}
         onClose={() => { setIsAddModalOpen(false); setEditingProcess(null); }}
-        title={editingProcess ? "Atualizar Registro Alpha" : "Novo Registro de Litígio"}
+        title={editingProcess ? "Atualizar Registro" : "Novo Registro de Litígio"}
       >
         <form className="space-y-8" onSubmit={handleSubmit}>
           <div className="space-y-3">
@@ -349,13 +349,13 @@ export const ProcessesPage: React.FC = () => {
             <input name="title" defaultValue={editingProcess?.title} required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Ex: Silva vs Construtora Alpha" />
           </div>
           <div className="space-y-3">
-            <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Número CNJ / Indexador Alpha</label>
+            <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Número CNJ / Indexador</label>
             <input name="number" defaultValue={editingProcess?.number} required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="0000000-00.0000.0.00.0000" />
           </div>
           <div className="space-y-3">
             <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Cliente Vinculado</label>
             <select name="client_id" className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner appearance-none">
-              <option value="">Selecionar Cliente Alpha...</option>
+              <option value="">Selecionar Cliente...</option>
               {clients.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
@@ -374,7 +374,7 @@ export const ProcessesPage: React.FC = () => {
           <div className="pt-8 flex flex-col sm:flex-row gap-6 border-t border-slate-100 dark:border-zinc-900">
             <button type="button" onClick={() => { setIsAddModalOpen(false); setEditingProcess(null); }} className="flex-1 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all">Cancelar</button>
             <button type="submit" className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all">
-              {editingProcess ? "Efetivar Alteração" : "Confirmar Registro Alpha"}
+              {editingProcess ? "Efetivar Alteração" : "Confirmar Registro"}
             </button>
           </div>
         </form>
@@ -412,7 +412,7 @@ export const ProcessesPage: React.FC = () => {
           </div>
           <div className="flex gap-4">
             <button onClick={() => setActiveFilter(null)} className="flex-1 py-6 bg-slate-100 dark:bg-zinc-900 text-slate-400 rounded-3xl font-black uppercase text-[11px] tracking-widest">Limpar</button>
-            <button onClick={() => setIsFilterModalOpen(false)} className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase text-[11px] tracking-widest shadow-2xl transition-all">Sincronizar Visão Alpha</button>
+            <button onClick={() => setIsFilterModalOpen(false)} className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase text-[11px] tracking-widest shadow-2xl transition-all">Sincronizar Visão</button>
           </div>
         </div>
       </Modal>

@@ -79,7 +79,7 @@ export const CondosPage: React.FC = () => {
     <div className="space-y-12 animate-in fade-in duration-700">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div className="space-y-2">
-          <h1 className="text-4xl font-black tracking-tighter text-slate-950 dark:text-white italic font-serif gold-gradient-text leading-none uppercase">Ativos Alpha.</h1>
+          <h1 className="text-4xl font-black tracking-tighter text-slate-950 dark:text-white italic font-serif gold-gradient-text leading-none uppercase">Ativos.</h1>
           <p className="text-[10px] font-black text-slate-500 dark:text-zinc-500 uppercase tracking-[0.4em]">Gestão de Unidades Gestoras & Habitacionais</p>
         </div>
         <button
@@ -133,14 +133,14 @@ export const CondosPage: React.FC = () => {
               <div className="p-4 bg-black dark:bg-white rounded-3xl text-white dark:text-black shadow-3xl"><LayoutList size={28} /></div>
               <div>
                 <h2 className="text-3xl font-black text-slate-950 dark:text-white tracking-tighter leading-none mb-2 uppercase">{selectedCondo.name}</h2>
-                <p className="text-[10px] font-black text-slate-500 dark:text-zinc-600 uppercase tracking-[0.4em]">Sub-Painel: Unidades Alpha Habitacionais</p>
+                <p className="text-[10px] font-black text-slate-500 dark:text-zinc-600 uppercase tracking-[0.4em]">Sub-Painel: Unidades Habitacionais</p>
               </div>
             </div>
             <button
               onClick={() => setIsUnitModalOpen(true)}
               className="w-full md:w-auto bg-white dark:bg-black text-slate-950 dark:text-white border border-slate-200 dark:border-zinc-800 px-8 py-4.5 rounded-3xl font-black text-[11px] uppercase tracking-widest hover:border-gold-500 transition-all flex items-center justify-center gap-3 shadow-sm active:scale-95"
             >
-              <Plus size={16} /> Registrar Unidade Alpha
+              <Plus size={16} /> Registrar Unidade
             </button>
           </div>
 
@@ -148,7 +148,7 @@ export const CondosPage: React.FC = () => {
             <table className="min-w-full">
               <thead className="bg-slate-50 dark:bg-zinc-950 border-b border-slate-100 dark:border-zinc-900">
                 <tr>
-                  <th className="px-12 py-7 text-[10px] font-black text-slate-400 dark:text-zinc-700 uppercase tracking-widest text-left">Identificação Alpha</th>
+                  <th className="px-12 py-7 text-[10px] font-black text-slate-400 dark:text-zinc-700 uppercase tracking-widest text-left">Identificação</th>
                   <th className="px-12 py-7 text-[10px] font-black text-slate-400 dark:text-zinc-700 uppercase tracking-widest text-left">Titularidade Jurídica</th>
                   <th className="px-12 py-7 text-[10px] font-black text-slate-400 dark:text-zinc-700 uppercase tracking-widest text-left">Governança Fiscal</th>
                   <th className="px-12 py-7 text-right"></th>
@@ -172,10 +172,10 @@ export const CondosPage: React.FC = () => {
                     <td className="px-12 py-8 text-sm font-bold text-slate-500 dark:text-zinc-600 group-hover:text-slate-950 dark:group-hover:text-zinc-300 transition-colors">{unit.owner}</td>
                     <td className="px-12 py-8">
                       <span className={`text-[10px] font-black uppercase tracking-widest px-5 py-2 rounded-full border shadow-sm ${unit.status === 'Debt' ? 'bg-orange-500/10 text-orange-600 border-orange-500/20' :
-                          unit.status === 'LegalAction' ? 'bg-red-500/10 text-red-600 border-red-500/20' :
-                            'bg-gold-600/10 text-gold-600 border-gold-600/20'
+                        unit.status === 'LegalAction' ? 'bg-red-500/10 text-red-600 border-red-500/20' :
+                          'bg-gold-600/10 text-gold-600 border-gold-600/20'
                         }`}>
-                        {unit.status === 'Debt' ? 'Protocolo: Inadimplente' : unit.status === 'LegalAction' ? 'Litígio Ativo' : 'Compliance Alpha: OK'}
+                        {unit.status === 'Debt' ? 'Protocolo: Inadimplente' : unit.status === 'LegalAction' ? 'Litígio Ativo' : 'Compliance: OK'}
                       </span>
                     </td>
                     <td className="px-12 py-8 text-right">
@@ -195,7 +195,7 @@ export const CondosPage: React.FC = () => {
       <Modal
         isOpen={isCondoModalOpen || !!editingCondo}
         onClose={() => { setIsCondoModalOpen(false); setEditingCondo(null); }}
-        title={editingCondo ? "Governança: Atualizar Ativo" : "Registrar Unidade Gestora Alpha"}
+        title={editingCondo ? "Governança: Atualizar Ativo" : "Registrar Unidade Gestora"}
       >
         <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
           <div className="space-y-3">
@@ -208,25 +208,25 @@ export const CondosPage: React.FC = () => {
               <input defaultValue={editingCondo?.cnpj} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="00.000.000/0001-00" />
             </div>
             <div className="space-y-3">
-              <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Síndico / Gestor Alpha</label>
+              <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Síndico / Gestor</label>
               <input defaultValue={editingCondo?.manager} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Nome do Responsável" />
             </div>
           </div>
           <div className="space-y-3">
-            <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Localização Física Alpha (Endereço)</label>
+            <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Localização Física (Endereço)</label>
             <input defaultValue={editingCondo?.address} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Rua, Número, Bairro, Cidade/UF" />
           </div>
           <div className="pt-8 flex flex-col sm:flex-row gap-6 border-t border-slate-100 dark:border-zinc-900">
             <button type="button" onClick={() => { setIsCondoModalOpen(false); setEditingCondo(null); }} className="flex-1 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all">Cancelar</button>
             <button type="submit" onClick={() => { setIsCondoModalOpen(false); setEditingCondo(null); }} className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all">
-              {editingCondo ? "Efetivar Alteração" : "Confirmar Registro Alpha"}
+              {editingCondo ? "Efetivar Alteração" : "Confirmar Registro"}
             </button>
           </div>
         </form>
       </Modal>
 
       {/* Modal Registrar Unidade Habitacional */}
-      <Modal isOpen={isUnitModalOpen} onClose={() => setIsUnitModalOpen(false)} title="Nova Unidade Habitacional Alpha">
+      <Modal isOpen={isUnitModalOpen} onClose={() => setIsUnitModalOpen(false)} title="Nova Unidade Habitacional">
         <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
@@ -244,7 +244,7 @@ export const CondosPage: React.FC = () => {
           </div>
           <div className="pt-8 flex flex-col sm:flex-row gap-6 border-t border-slate-100 dark:border-zinc-900">
             <button type="button" onClick={() => setIsUnitModalOpen(false)} className="flex-1 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all">Abortar</button>
-            <button type="submit" onClick={() => setIsUnitModalOpen(false)} className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all">Efetivar Unidade Alpha</button>
+            <button type="submit" onClick={() => setIsUnitModalOpen(false)} className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all">Efetivar Unidade</button>
           </div>
         </form>
       </Modal>
@@ -285,13 +285,13 @@ export const CondosPage: React.FC = () => {
                 <div className="p-10 bg-slate-100 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-[2.5rem] shadow-sm space-y-6">
                   <div className="flex items-center gap-3">
                     <Sparkles className="text-gold-500" size={24} />
-                    <span className="text-[11px] font-black uppercase tracking-[0.4em] text-gold-600">AI Alpha Prediction</span>
+                    <span className="text-[11px] font-black uppercase tracking-[0.4em] text-gold-600">AI Prediction</span>
                   </div>
                   <p className="text-sm text-slate-600 dark:text-zinc-500 leading-relaxed font-bold">
                     Unidade com alta probabilidade de adimplemento espontâneo. Recomendamos notificação consultiva amigável.
                   </p>
                 </div>
-                <button onClick={() => setIsUnitDetailOpen(false)} className="w-full py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase text-[11px] tracking-widest active:scale-95 transition-all shadow-2xl">Fechar Dossiê Alpha</button>
+                <button onClick={() => setIsUnitDetailOpen(false)} className="w-full py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase text-[11px] tracking-widest active:scale-95 transition-all shadow-2xl">Fechar Dossiê</button>
               </div>
             </div>
           </div>

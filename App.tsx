@@ -13,6 +13,7 @@ import { CondosPage } from './components/dashboard/CondosPage';
 import { ReportsPage } from './components/dashboard/ReportsPage';
 import { AuditLogsPage } from './components/dashboard/AuditLogsPage';
 import { EmailModule } from './components/dashboard/EmailModule';
+import { ProfilePage } from './components/dashboard/ProfilePage';
 import { AuthProvider, useAuth } from './lib/AuthContext';
 import { Toaster } from 'react-hot-toast';
 
@@ -204,6 +205,17 @@ const AppRoutes: React.FC = () => {
           <ProtectedRoute>
             <DashboardLayout>
               <EmailModule />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <ProfilePage />
             </DashboardLayout>
           </ProtectedRoute>
         }

@@ -89,14 +89,14 @@ export const ProductivityPage: React.FC = () => {
               onClick={() => setIsNewTaskModalOpen(true)}
               className="w-full sm:w-auto bg-black dark:bg-white text-white dark:text-black px-10 py-5 rounded-[2rem] font-black uppercase tracking-[0.1em] text-[11px] flex items-center justify-center gap-3 shadow-2xl active:scale-95 transition-all"
             >
-              <Plus size={18} /> Iniciar Operação Alpha
+              <Plus size={18} /> Iniciar Operação
             </button>
           </div>
 
           {activeTab === 'matrix' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               {[
-                { priority: 'High', title: 'Crítico Alpha', sub: 'Status: Fatal', color: 'bg-red-500/[0.03] text-red-500 border-red-500/10' },
+                { priority: 'High', title: 'Crítico', sub: 'Status: Fatal', color: 'bg-red-500/[0.03] text-red-500 border-red-500/10' },
                 { priority: 'Medium', title: 'Desenvolvimento', sub: 'Status: Estratégico', color: 'bg-gold-500/[0.03] text-gold-600 border-gold-500/10' },
                 { priority: 'Low', title: 'Operacional Jurídico', sub: 'Status: Delegação', color: 'bg-slate-50 dark:bg-zinc-950 text-slate-500 dark:text-zinc-600 border-slate-200 dark:border-zinc-900' },
                 { priority: 'None', title: 'Histórico de Mérito', sub: 'Status: Concluído', color: 'bg-emerald-500/[0.03] text-emerald-600 border-emerald-500/10' }
@@ -140,8 +140,8 @@ export const ProductivityPage: React.FC = () => {
           {activeTab === 'sheets' && (
             <div className="premium-card p-20 rounded-[4rem] flex flex-col items-center justify-center text-center space-y-6">
               <List size={48} className="text-gold-500" />
-              <h3 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Ledger Alpha em Sincronização</h3>
-              <p className="text-sm text-slate-500 dark:text-zinc-500 font-bold max-w-md italic">O módulo de tabelas executivas está sendo otimizado para a arquitetura Alpha v2.0.</p>
+              <h3 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Ledger em Sincronização</h3>
+              <p className="text-sm text-slate-500 dark:text-zinc-500 font-bold max-w-md italic">O módulo de tabelas executivas está sendo otimizado para a arquitetura v2.0.</p>
             </div>
           )}
         </div>
@@ -172,7 +172,7 @@ export const ProductivityPage: React.FC = () => {
                   <RotateCcw size={28} />
                 </button>
               </div>
-              <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em]">Protocolo de Foco Alpha v2.0</p>
+              <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em]">Protocolo de Foco v2.0</p>
             </div>
           </div>
         </div>
@@ -181,7 +181,7 @@ export const ProductivityPage: React.FC = () => {
       <Modal
         isOpen={isNewTaskModalOpen || !!editingTask}
         onClose={() => { setIsNewTaskModalOpen(false); setEditingTask(null); }}
-        title={editingTask ? "Modificar Operação Jurídica" : "Iniciar Nova Operação Alpha"}
+        title={editingTask ? "Modificar Operação Jurídica" : "Iniciar Nova Operação"}
       >
         <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
           <div className="space-y-3">
@@ -193,12 +193,12 @@ export const ProductivityPage: React.FC = () => {
               <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Prioridade Estratégica</label>
               <select defaultValue={editingTask?.priority} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner appearance-none">
                 <option value="High">Urgente • Resolver Imediato</option>
-                <option value="Medium">Estratégico • Semestre Alpha</option>
+                <option value="Medium">Estratégico • Semestre Corrente</option>
                 <option value="Low">Operacional • Delegação</option>
               </select>
             </div>
             <div className="space-y-3">
-              <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Classificação Alpha (Tag)</label>
+              <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Classificação (Tag)</label>
               <input defaultValue={editingTask?.tag} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Ex: Tributário" />
             </div>
           </div>
@@ -209,7 +209,7 @@ export const ProductivityPage: React.FC = () => {
           <div className="pt-10 flex flex-col sm:flex-row gap-6 border-t border-slate-100 dark:border-zinc-900">
             <button type="button" onClick={() => { setIsNewTaskModalOpen(false); setEditingTask(null); }} className="flex-1 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-950 transition-all">Abortar</button>
             <button type="submit" onClick={() => { setIsNewTaskModalOpen(false); setEditingTask(null); }} className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all">
-              {editingTask ? "Efetivar Alteração" : "Confirmar Operação Alpha"}
+              {editingTask ? "Efetivar Alteração" : "Confirmar Operação"}
             </button>
           </div>
         </form>

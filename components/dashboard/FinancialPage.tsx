@@ -19,7 +19,7 @@ export const FinancialPage: React.FC = () => {
     amount: '',
     type: 'Income' as 'Income' | 'Expense',
     date: new Date().toISOString().split('T')[0],
-    category: 'Honorários Alpha',
+    category: 'Honorários',
     currency: 'BRL' as Currency
   });
 
@@ -125,7 +125,7 @@ export const FinancialPage: React.FC = () => {
           amount: '',
           type: 'Income',
           date: new Date().toISOString().split('T')[0],
-          category: 'Honorários Alpha',
+          category: 'Honorários',
           currency: 'BRL'
         });
         fetchRecords();
@@ -155,7 +155,7 @@ export const FinancialPage: React.FC = () => {
       <div className="space-y-10 animate-fade-in-up">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
           <div className="space-y-2">
-            <h1 className="text-4xl font-black tracking-tighter text-slate-950 dark:text-white uppercase leading-none italic font-serif gold-gradient-text">Tesouraria Alpha.</h1>
+            <h1 className="text-4xl font-black tracking-tighter text-slate-950 dark:text-white uppercase leading-none italic font-serif gold-gradient-text">Tesouraria.</h1>
             <p className="text-slate-500 dark:text-zinc-500 font-black uppercase text-[10px] tracking-[0.4em]">Gestão Financeira & Capital Institucional</p>
           </div>
           <div className="flex gap-4 w-full sm:w-auto">
@@ -168,13 +168,13 @@ export const FinancialPage: React.FC = () => {
                   amount: '',
                   type: 'Income',
                   date: new Date().toISOString().split('T')[0],
-                  category: 'Honorários Alpha'
+                  category: 'Honorários'
                 });
                 setIsAddModalOpen(true);
               }}
               className="flex-1 sm:flex-none bg-black dark:bg-white text-white dark:text-black px-10 py-5 rounded-[2rem] font-black uppercase tracking-widest text-[11px] shadow-2xl transition-all"
             >
-              Novo Lançamento Alpha
+              Novo Lançamento
             </button>
           </div>
         </div>
@@ -199,7 +199,7 @@ export const FinancialPage: React.FC = () => {
             <p className="text-[10px] font-black text-gold-500 uppercase tracking-[0.4em] mb-4 relative z-10">Yield Acumulado</p>
             <h3 className="text-4xl md:text-5xl font-black text-white tracking-tighter gold-gradient-text relative z-10 leading-none">{formatCurrency(yieldAcumulado)}</h3>
             <div className="mt-8 py-3 bg-gold-600/10 border border-gold-600/20 rounded-2xl text-center relative z-10 shadow-lg">
-              <span className="text-[9px] font-black text-gold-500 uppercase tracking-[0.4em]">Monitoramento Alpha Ativo</span>
+              <span className="text-[9px] font-black text-gold-500 uppercase tracking-[0.4em]">Monitoramento Ativo</span>
             </div>
           </div>
         </div>
@@ -210,7 +210,7 @@ export const FinancialPage: React.FC = () => {
               <thead className="bg-slate-50 dark:bg-zinc-950 border-b border-slate-200 dark:border-zinc-900">
                 <tr>
                   <th className="px-12 py-8 text-[10px] font-black text-slate-400 dark:text-zinc-700 uppercase tracking-widest">Descrição Operacional</th>
-                  <th className="px-12 py-8 text-[10px] font-black text-slate-400 dark:text-zinc-700 uppercase tracking-widest text-center">Data Alpha</th>
+                  <th className="px-12 py-8 text-[10px] font-black text-slate-400 dark:text-zinc-700 uppercase tracking-widest text-center">Data</th>
                   <th className="px-12 py-8 text-[10px] font-black text-slate-400 dark:text-zinc-700 uppercase tracking-widest text-right">Montante</th>
                 </tr>
               </thead>
@@ -261,7 +261,7 @@ export const FinancialPage: React.FC = () => {
         <Modal
           isOpen={isAddModalOpen || !!editingRecord}
           onClose={() => { setIsAddModalOpen(false); setEditingRecord(null); }}
-          title={editingRecord ? "Atualizar Lançamento Alpha" : "Novo Lançamento Tesouraria"}
+          title={editingRecord ? "Atualizar Lançamento" : "Novo Lançamento Tesouraria"}
         >
           <form className="space-y-8" onSubmit={handleSubmit}>
             <div className="space-y-3">
@@ -276,7 +276,7 @@ export const FinancialPage: React.FC = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Valor Alpha (Ex: 1.500,00)</label>
+                <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Valor (Ex: 1.500,00)</label>
                 <input
                   value={formData.amount}
                   onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
@@ -309,13 +309,13 @@ export const FinancialPage: React.FC = () => {
                 />
               </div>
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Categoria Alpha</label>
+                <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Categoria</label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner appearance-none"
                 >
-                  <option>Honorários Alpha</option>
+                  <option>Honorários</option>
                   <option>Custos Operacionais</option>
                   <option>Infraestrutura Office</option>
                   <option>Yield Estratégico</option>
@@ -325,7 +325,7 @@ export const FinancialPage: React.FC = () => {
             <div className="pt-8 flex flex-col sm:flex-row gap-6 border-t border-slate-100 dark:border-zinc-900">
               <button type="button" onClick={() => { setIsAddModalOpen(false); setEditingRecord(null); }} className="flex-1 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-950 transition-all">Abortar</button>
               <button type="submit" disabled={loading} className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all disabled:opacity-50">
-                {loading ? "Sincronizando..." : editingRecord ? "Efetivar Governança" : "Confirmar Lançamento Alpha"}
+                {loading ? "Sincronizando..." : editingRecord ? "Efetivar Governança" : "Confirmar Lançamento"}
               </button>
             </div>
           </form>

@@ -38,14 +38,14 @@ export const ReportsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8">
         <div className="space-y-2">
           <h1 className="text-4xl font-black tracking-tighter text-slate-950 dark:text-white uppercase italic font-serif gold-gradient-text leading-none">Intelligence Hub.</h1>
-          <p className="text-[10px] font-black text-slate-500 dark:text-zinc-500 uppercase tracking-[0.4em]">Business Intelligence & BI Preditivo Alpha</p>
+          <p className="text-[10px] font-black text-slate-500 dark:text-zinc-500 uppercase tracking-[0.4em]">Business Intelligence & BI Preditivo</p>
         </div>
         <div className="flex gap-4 w-full sm:w-auto">
           <button
             onClick={() => setIsPeriodModalOpen(true)}
             className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-8 py-4.5 border border-slate-200 dark:border-zinc-800 bg-white dark:bg-black rounded-3xl text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-zinc-400 hover:border-gold-500 transition-all shadow-sm"
           >
-            <Filter size={16} /> Período Alpha <ChevronDown size={14} className="opacity-40" />
+            <Filter size={16} /> Período <ChevronDown size={14} className="opacity-40" />
           </button>
           <button className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-10 py-4.5 bg-black dark:bg-white text-white dark:text-black rounded-3xl text-[10px] font-black uppercase tracking-widest shadow-2xl transition-all">
             <Download size={16} /> Exportar
@@ -75,7 +75,7 @@ export const ReportsPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             <div className="lg:col-span-2 premium-card rounded-[3rem] md:rounded-[4rem] p-10 md:p-14 space-y-12 bg-white dark:bg-black">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <h3 className="text-2xl font-black text-slate-950 dark:text-white tracking-tighter italic font-serif leading-none">Fluxo de Honorários Alpha</h3>
+                <h3 className="text-2xl font-black text-slate-950 dark:text-white tracking-tighter italic font-serif leading-none">Fluxo de Honorários</h3>
                 <div className="flex items-center gap-6">
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 bg-gold-600 rounded-full shadow-[0_0_10px_rgba(212,175,55,0.4)]" />
@@ -111,7 +111,7 @@ export const ReportsPage: React.FC = () => {
               <div className="bg-black dark:bg-zinc-950 rounded-[3rem] md:rounded-[4rem] p-12 text-white shadow-3xl relative overflow-hidden group border border-gold-500/10">
                 <div className="absolute top-0 right-0 w-48 h-48 bg-gold-600/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
                 <Sparkles className="text-gold-500 mb-8 animate-pulse" size={32} />
-                <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-gold-600 mb-4">Previsão de Margem Alpha</h4>
+                <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-gold-600 mb-4">Previsão de Margem</h4>
                 <p className="text-4xl md:text-5xl font-black tracking-tighter mb-8 gold-gradient-text leading-none font-mono">
                   {(Object.values(revenueByMonth).reduce((a: any, b: any) => a + b, 0) * 1.12).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                 </p>
@@ -137,12 +137,12 @@ export const ReportsPage: React.FC = () => {
           <FileBarChart size={64} className="text-gold-500 opacity-40" />
           <div className="space-y-3">
             <h3 className="text-3xl font-black text-slate-950 dark:text-white uppercase tracking-tighter italic font-serif">Módulo em Processamento.</h3>
-            <p className="text-sm text-slate-500 dark:text-zinc-500 font-bold italic">Relatórios avançados de {activeTab} estão sendo sincronizados com a base Alpha v2.0.</p>
+            <p className="text-sm text-slate-500 dark:text-zinc-500 font-bold italic">Relatórios avançados de {activeTab} estão sendo sincronizados com a base v2.0.</p>
           </div>
         </div>
       )}
 
-      <Modal isOpen={isPeriodModalOpen} onClose={() => setIsPeriodModalOpen(false)} title="Configurar Período Alpha">
+      <Modal isOpen={isPeriodModalOpen} onClose={() => setIsPeriodModalOpen(false)} title="Configurar Período">
         <div className="space-y-10">
           <p className="text-sm font-bold text-slate-500 dark:text-zinc-400 leading-relaxed italic border-l-4 border-gold-500 pl-6">Defina a janela temporal para análise profunda de métricas e performance institucional do ecossistema.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -164,7 +164,7 @@ export const ReportsPage: React.FC = () => {
           <div className="space-y-4">
             <h4 className="text-[10px] font-black text-slate-400 dark:text-zinc-700 uppercase tracking-widest ml-1">Atalhos Estratégicos</h4>
             <div className="flex flex-wrap gap-4">
-              {['Últimos 30 Dias', 'Trimestre Alpha', 'Semestre Corrente', 'Anual'].map(p => (
+              {['Últimos 30 Dias', 'Trimestre Corrente', 'Semestre Corrente', 'Anual'].map(p => (
                 <button key={p} className="px-6 py-4 bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl text-[10px] font-black text-slate-600 dark:text-zinc-400 uppercase tracking-widest hover:border-gold-500 hover:text-gold-600 transition-all shadow-sm">{p}</button>
               ))}
             </div>
@@ -173,7 +173,7 @@ export const ReportsPage: React.FC = () => {
             onClick={() => setIsPeriodModalOpen(false)}
             className="w-full py-7 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-[0.2em] text-[11px] mt-6 shadow-3xl active:scale-95 transition-all"
           >
-            Sincronizar Timeline Alpha
+            Sincronizar Timeline
           </button>
         </div>
       </Modal>

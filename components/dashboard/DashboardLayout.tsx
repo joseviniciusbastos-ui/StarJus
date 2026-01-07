@@ -30,6 +30,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     { path: '/reports', icon: BarChart3, label: 'Relatórios' },
     { path: '/audit', icon: Shield, label: 'Auditoria' },
     { path: '/email', icon: Mail, label: 'Email' },
+    { path: '/profile', icon: Users, label: 'Perfil' },
   ];
 
   const isActive = (path: string) => {
@@ -78,8 +79,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                 setIsMobileMenuOpen(false);
               }}
               className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black text-sm transition-all ${isActive(item.path)
-                ? 'bg-gold-500 text-black shadow-xl'
-                : 'text-slate-600 dark:text-zinc-500 hover:bg-slate-100 dark:hover:bg-zinc-900'
+                ? 'bg-gold-500 text-slate-950 shadow-[0_10px_20px_-5px_rgba(212,175,55,0.4)] scale-[1.02]'
+                : 'text-slate-600 dark:text-zinc-500 hover:bg-slate-100 dark:hover:bg-zinc-900 hover:text-slate-900 dark:hover:text-white'
                 }`}
             >
               <item.icon size={20} />
