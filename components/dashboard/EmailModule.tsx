@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { Mail, Send, Trash2, Star, Circle, Search, Filter, RefreshCw, ChevronRight, Inbox, Archive, AlertCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../lib/AuthContext';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -11,44 +11,31 @@ interface Email {
     sender_email: string;
     subject: string;
     content: string;
-    is_read: boolean;
     created_at: string;
+    is_read: boolean;
+    is_starred: boolean;
+    category: 'inbox' | 'sent' | 'archive';
 }
 
 export const EmailModule: React.FC = () => {
+    const { officeId, officeName } = useAuth();
     const [emails, setEmails] = useState<Email[]>([]);
     const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
     const [loading, setLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [isComposing, setIsComposing] = useState(false);
-    const [composeData, setComposeData] = useState({
-        recipient: '',
-        subject: '',
-        content: ''
-    });
+    const [isComposeOpen, setIsComposeOpen] = useState(false);
+    const [composeData, setComposeData] = useState({ subject: '', content: '' });
 
     useEffect(() => {
         fetchEmails();
-
-        const channel = supabase
-            .channel('office_emails_changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'office_emails' }, () => {
-                fetchEmails();
-            })
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(channel);
-        };
-    }, []);
+    }, [officeId]);
 
     const fetchEmails = async () => {
         try {
             setLoading(true);
-            const { data, error } = await supabase
+            const { data, error } = await (supabase
                 .from('office_emails')
                 .select('*')
-                .order('created_at', { ascending: false });
+                .order('created_at', { ascending: false }) as any);
 
             if (error) throw error;
             setEmails(data || []);
@@ -61,279 +48,262 @@ export const EmailModule: React.FC = () => {
 
     const markAsRead = async (emailId: string) => {
         try {
-            const { error } = await supabase
+            const { error } = await (supabase
                 .from('office_emails')
-                .update({ is_read: true })
-                .eq('id', emailId);
+                .update({ is_read: true } as any)
+                .eq('id', emailId) as any);
 
             if (error) throw error;
 
-            setEmails(emails.map(e => e.id === emailId ? { ...e, is_read: true } : e));
-            if (selectedEmail?.id === emailId) {
-                setSelectedEmail({ ...selectedEmail, is_read: true });
-            }
+            setEmails(current =>
+                current.map(e => e.id === emailId ? { ...e, is_read: true } : e)
+            );
         } catch (error) {
-            console.error('Error marking as read:', error);
+            console.error('Error marking email as read:', error);
         }
     };
 
-    const handleComposeSubmit = async (e: React.FormEvent) => {
+    const handleSendEmail = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
 
-            // Get user's office_id
-            const { data: memberData } = await supabase
-                .from('office_members')
-                .select('office_id')
-                .eq('user_id', user.id)
-                .single();
-
-            if (!memberData) return;
-
-            const { error } = await supabase
+            const { error } = await (supabase
                 .from('office_emails')
                 .insert({
-                    office_id: memberData.office_id,
+                    office_id: officeId,
                     sender_name: user.user_metadata.full_name || user.email,
                     sender_email: user.email,
                     subject: composeData.subject,
                     content: composeData.content
-                });
+                } as any) as any);
 
             if (error) throw error;
 
-            setIsComposing(false);
-            setComposeData({ recipient: '', subject: '', content: '' });
+            setIsComposeOpen(false);
+            setComposeData({ subject: '', content: '' });
             fetchEmails();
         } catch (error) {
-            console.error('Error sending message:', error);
+            console.error('Error sending email:', error);
         }
     };
 
-    const filteredEmails = emails.filter(email =>
-        email.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        email.sender_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        email.sender_email.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
     return (
-        <div className="flex h-full bg-black/40 backdrop-blur-xl rounded-[2.5rem] border border-zinc-800/50 overflow-hidden">
-            {/* Sidebar Navigation */}
-            <div className="w-64 border-r border-zinc-800/50 p-6 flex flex-col gap-8">
-                <div className="flex items-center gap-3 px-2">
-                    <div className="w-10 h-10 bg-gold-500/10 rounded-2xl flex items-center justify-center border border-gold-500/20">
-                        <Mail className="text-gold-500" size={20} />
+        <div className="flex h-full bg-zinc-950 border border-zinc-900 rounded-[2.5rem] overflow-hidden shadow-2xl animate-fade-in">
+            {/* Sidebar */}
+            <div className="w-80 bg-zinc-900/50 border-r border-zinc-900 flex flex-col">
+                <div className="p-8 space-y-8">
+                    <div className="flex items-center gap-3 px-2">
+                        <div className="w-10 h-10 bg-gold-500/10 rounded-2xl flex items-center justify-center border border-gold-500/20">
+                            <Mail className="text-gold-500" size={20} />
+                        </div>
+                        <div>
+                            <h2 className="text-sm font-black text-white uppercase tracking-widest">{officeName || 'Escritório'}</h2>
+                            <p className="text-[10px] text-gold-500/60 font-black lowercase tracking-tighter">
+                                {officeName ? `${officeName.toLowerCase().replace(/\s+/g, '')}@starjus.com.br` : 'office@starjus.com.br'}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h2 className="text-sm font-black text-white uppercase tracking-widest">E-mail</h2>
-                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-tighter">Corporativo</p>
-                    </div>
+
+                    <button
+                        onClick={() => setIsComposeOpen(true)}
+                        className="w-full bg-gradient-to-r from-gold-600 to-gold-400 text-black py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-[0_0_20px_rgba(212,175,55,0.2)] hover:shadow-[0_0_30px_rgba(212,175,55,0.3)] transition-all active:scale-95"
+                    >
+                        Compor Nova Estratégia
+                    </button>
                 </div>
 
-                <button
-                    onClick={() => setIsComposing(true)}
-                    className="w-full py-4 bg-white text-black rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 hover:bg-gold-500 transition-all active:scale-[0.98]"
-                >
-                    <Send size={14} /> Novo E-mail
-                </button>
-
-                <nav className="flex flex-col gap-2">
-                    <button className="flex items-center gap-3 px-4 py-3 bg-white/5 text-white rounded-xl text-xs font-bold transition-all border border-white/10">
-                        <Inbox size={16} className="text-gold-500" /> Inbox
-                        <span className="ml-auto bg-gold-500 text-black px-2 py-0.5 rounded-full text-[9px] font-black">
-                            {emails.filter(e => !e.is_read).length}
-                        </span>
-                    </button>
-                    <button className="flex items-center gap-3 px-4 py-3 text-zinc-500 hover:bg-white/5 hover:text-white rounded-xl text-xs font-bold transition-all">
-                        <Star size={16} /> Favoritos
-                    </button>
-                    <button className="flex items-center gap-3 px-4 py-3 text-zinc-500 hover:bg-white/5 hover:text-white rounded-xl text-xs font-bold transition-all">
-                        <Send size={16} /> Enviados
-                    </button>
-                    <button className="flex items-center gap-3 px-4 py-3 text-zinc-500 hover:bg-white/5 hover:text-white rounded-xl text-xs font-bold transition-all">
-                        <Archive size={16} /> Arquivados
-                    </button>
-                    <button className="flex items-center gap-3 px-4 py-3 text-zinc-500 hover:bg-white/5 hover:text-white rounded-xl text-xs font-bold transition-all">
-                        <Trash2 size={16} /> Lixeira
-                    </button>
-                </nav>
-
-                <div className="mt-auto p-4 bg-zinc-900/50 rounded-2xl border border-zinc-800">
-                    <div className="flex items-center gap-2 mb-2">
-                        <AlertCircle size={14} className="text-gold-500" />
-                        <span className="text-[10px] font-black text-white uppercase tracking-widest">Armazenamento</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
-                        <div className="h-full w-1/3 bg-gold-500" />
-                    </div>
-                    <p className="text-[9px] text-zinc-500 mt-2 font-bold">4.2 GB de 15 GB usados</p>
+                <div className="flex-1 overflow-y-auto px-4 pb-8 space-y-1">
+                    {[
+                        { icon: Inbox, label: 'Principais', count: emails.filter(e => !e.is_read).length, active: true },
+                        { icon: Star, label: 'Prioritários', count: 0 },
+                        { icon: Send, label: 'Enviados', count: 0 },
+                        { icon: Archive, label: 'Arquivados', count: 0 },
+                        { icon: Trash2, label: 'Lixeira', count: 0 },
+                    ].map((item) => (
+                        <button
+                            key={item.label}
+                            className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all group ${item.active ? 'bg-gold-500/10 text-gold-500 border border-gold-500/20' : 'text-zinc-500 hover:text-white hover:bg-zinc-800'}`}
+                        >
+                            <div className="flex items-center gap-3">
+                                <item.icon size={16} />
+                                <span className="text-[11px] font-black uppercase tracking-wider">{item.label}</span>
+                            </div>
+                            {item.count > 0 && (
+                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${item.active ? 'bg-gold-500 text-black' : 'bg-zinc-800 text-zinc-500'}`}>
+                                    {item.count}
+                                </span>
+                            )}
+                        </button>
+                    ))}
                 </div>
             </div>
 
             {/* Email List */}
-            <div className="w-96 border-r border-zinc-800/50 flex flex-col">
-                <div className="p-6 border-b border-zinc-800/50 space-y-4">
-                    <div className="relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600" size={16} />
+            <div className="flex-1 flex flex-col bg-zinc-950">
+                <div className="p-8 border-b border-zinc-900 flex items-center justify-between">
+                    <div className="relative flex-1 max-w-xl">
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-600" size={16} />
                         <input
                             type="text"
-                            placeholder="Pesquisar mensagens..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-black/40 border border-zinc-800/50 rounded-xl outline-none focus:border-gold-500/50 text-xs text-white placeholder:text-zinc-600 font-medium transition-all"
+                            placeholder="Buscar correspondência jurídica..."
+                            className="w-full bg-zinc-900/50 border border-zinc-900 rounded-2xl pl-14 pr-6 py-3.5 text-xs text-white placeholder:text-zinc-600 outline-none focus:border-gold-500/50 transition-all font-bold"
                         />
                     </div>
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <button className="p-2 text-zinc-500 hover:text-white transition-all"><Filter size={16} /></button>
-                            <button onClick={fetchEmails} className="p-2 text-zinc-500 hover:text-white transition-all"><RefreshCw size={16} /></button>
-                        </div>
-                        <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Recentes</p>
+                    <div className="flex items-center gap-4">
+                        <button className="p-3 bg-zinc-900 rounded-2xl text-zinc-500 hover:text-white transition-all border border-zinc-800">
+                            <Filter size={18} />
+                        </button>
+                        <button onClick={fetchEmails} className="p-3 bg-zinc-900 rounded-2xl text-zinc-500 hover:text-white transition-all border border-zinc-800">
+                            <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+                        </button>
                     </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto">
-                    {filteredEmails.length === 0 ? (
-                        <div className="h-full flex flex-col items-center justify-center p-8 opacity-20">
-                            <Mail size={48} className="mb-4" />
-                            <p className="text-xs font-bold uppercase tracking-widest">Nenhuma mensagem</p>
+                    {loading ? (
+                        <div className="flex items-center justify-center h-full">
+                            <div className="w-8 h-8 border-2 border-gold-500 border-t-transparent rounded-full animate-spin" />
+                        </div>
+                    ) : emails.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full text-zinc-600 space-y-4">
+                            <Mail size={48} className="opacity-20" />
+                            <p className="text-[10px] font-black uppercase tracking-[0.3em]">Comunicação Sincronizada: Vazio</p>
                         </div>
                     ) : (
-                        filteredEmails.map(email => (
-                            <button
-                                key={email.id}
-                                onClick={() => {
-                                    setSelectedEmail(email);
-                                    if (!email.is_read) markAsRead(email.id);
-                                }}
-                                className={`w-full p-6 text-left border-b border-zinc-800/30 transition-all hover:bg-white/5 relative group ${selectedEmail?.id === email.id ? 'bg-white/5' : ''}`}
-                            >
-                                {!email.is_read && (
-                                    <div className="absolute left-2 top-1/2 -translate-y-1/2">
-                                        <div className="w-1.5 h-1.5 bg-gold-500 rounded-full shadow-[0_0_10px_rgba(212,175,55,0.5)]" />
+                        <div className="divide-y divide-zinc-900">
+                            {emails.map((email) => (
+                                <button
+                                    key={email.id}
+                                    onClick={() => {
+                                        setSelectedEmail(email);
+                                        markAsRead(email.id);
+                                    }}
+                                    className={`w-full p-8 text-left transition-all hover:bg-zinc-900/50 flex gap-6 relative group ${email.is_read ? 'opacity-60' : ''}`}
+                                >
+                                    {!email.is_read && (
+                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gold-500 flex items-center justify-center">
+                                            <div className="w-1.5 h-1.5 bg-gold-500 rounded-full shadow-[0_0_10px_rgba(212,175,55,0.5)]" />
+                                        </div>
+                                    )}
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="flex flex-col">
+                                            <span className={`text-[11px] font-black uppercase tracking-wider ${email.is_read ? 'text-zinc-500' : 'text-white'}`}>
+                                                {email.sender_name}
+                                            </span>
+                                            <span className="text-[9px] text-zinc-600 font-bold lowercase truncate max-w-[150px]">
+                                                {email.sender_email}
+                                            </span>
+                                        </div>
+                                        <span className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">
+                                            {format(new Date(email.created_at), 'HH:mm', { locale: ptBR })}
+                                        </span>
                                     </div>
-                                )}
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className={`text-[11px] font-black uppercase tracking-wider ${email.is_read ? 'text-zinc-500' : 'text-white'}`}>
-                                        {email.sender_name}
-                                    </span>
-                                    <span className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">
-                                        {format(new Date(email.created_at), 'HH:mm', { locale: ptBR })}
-                                    </span>
-                                </div>
-                                <h4 className={`text-xs mb-1 truncate ${email.is_read ? 'text-zinc-500 font-medium' : 'text-zinc-300 font-black'}`}>
-                                    {email.subject}
-                                </h4>
-                                <p className="text-[10px] text-zinc-600 line-clamp-2 leading-relaxed">
-                                    {email.content}
-                                </p>
-                                <div className="mt-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                                    <div className="px-2 py-0.5 bg-zinc-800 rounded-md text-[8px] font-black text-zinc-500 uppercase tracking-widest">Importante</div>
-                                    <div className="px-2 py-0.5 bg-zinc-800 rounded-md text-[8px] font-black text-zinc-500 uppercase tracking-widest">Jurídico</div>
-                                </div>
-                            </button>
-                        ))
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className={`text-xs font-black uppercase tracking-widest mb-2 truncate ${email.is_read ? 'text-zinc-500' : 'text-white'}`}>
+                                            {email.subject}
+                                        </h4>
+                                        <p className="text-[11px] text-zinc-600 line-clamp-2 leading-relaxed">
+                                            {email.content}
+                                        </p>
+                                    </div>
+                                    <div className="flex flex-col items-end gap-3 self-center">
+                                        <button className="text-zinc-700 hover:text-gold-500 transition-colors">
+                                            <Star size={16} />
+                                        </button>
+                                        <ChevronRight size={16} className="text-zinc-800 group-hover:text-gold-500 transition-all translate-x-4 group-hover:translate-x-0" />
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
                     )}
                 </div>
             </div>
 
-            {/* Email View */}
-            <div className="flex-1 flex flex-col">
-                {selectedEmail ? (
-                    <>
-                        <div className="p-8 border-b border-zinc-800/50 flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-gradient-to-br from-zinc-800 to-black rounded-2xl flex items-center justify-center border border-zinc-700">
-                                    <span className="text-zinc-500 font-black text-lg">{selectedEmail.sender_name[0].toUpperCase()}</span>
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-black text-white italic font-serif tracking-tight">{selectedEmail.sender_name}</h3>
-                                    <p className="text-[10px] text-zinc-500 font-bold tracking-widest uppercase">{`<${selectedEmail.sender_email}>`}</p>
+            {/* Email View Modal */}
+            <Modal
+                isOpen={!!selectedEmail}
+                onClose={() => setSelectedEmail(null)}
+                title="Detalhes da Correspondência"
+            >
+                {selectedEmail && (
+                    <div className="space-y-10 animate-fade-in">
+                        <div className="flex justify-between items-start pt-4">
+                            <div className="space-y-4">
+                                <h3 className="text-2xl font-black text-white uppercase tracking-tighter leading-none">{selectedEmail.subject}</h3>
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 bg-gold-500 flex items-center justify-center rounded-xl text-black font-black uppercase">
+                                        {selectedEmail.sender_name.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-black text-white uppercase tracking-wider">{selectedEmail.sender_name}</p>
+                                        <p className="text-[10px] text-zinc-500 font-bold lowercase">{selectedEmail.sender_email}</p>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-3">
-                                <button className="p-3 bg-zinc-900 border border-zinc-800 text-zinc-500 rounded-xl hover:text-white transition-all"><Star size={18} /></button>
-                                <button className="p-3 bg-zinc-900 border border-zinc-800 text-zinc-500 rounded-xl hover:text-white transition-all"><Trash2 size={18} /></button>
-                                <button className="px-6 py-3 bg-gold-500 text-black rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-gold-400 transition-all active:scale-[0.95]">Responder</button>
+                            <div className="text-right space-y-2">
+                                <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em]">Data Recebida</p>
+                                <p className="text-xs font-mono text-white">{format(new Date(selectedEmail.created_at), "dd 'de' MMMM, yyyy", { locale: ptBR })}</p>
                             </div>
                         </div>
 
-                        <div className="flex-1 p-12 overflow-y-auto">
-                            <div className="max-w-3xl">
-                                <h2 className="text-2xl font-black text-white mb-8 tracking-tighter leading-tight">{selectedEmail.subject}</h2>
-                                <div className="prose prose-invert prose-sm">
-                                    <p className="text-zinc-400 text-sm leading-relaxed whitespace-pre-wrap">
-                                        {selectedEmail.content}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </>
-                ) : isComposing ? (
-                    <form onSubmit={handleComposeSubmit} className="flex-1 flex flex-col">
-                        <div className="p-8 border-b border-zinc-800/50 flex items-center justify-between">
-                            <h3 className="text-sm font-black text-white uppercase tracking-widest">Nova Mensagem</h3>
-                            <div className="flex items-center gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsComposing(false)}
-                                    className="px-6 py-3 bg-zinc-900 border border-zinc-800 text-zinc-500 rounded-xl font-black uppercase tracking-widest text-[10px] hover:text-white transition-all"
-                                >
-                                    Cancelar
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-6 py-3 bg-gold-500 text-black rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-gold-400 transition-all active:scale-[0.95]"
-                                >
-                                    Enviar Mensagem
-                                </button>
-                            </div>
+                        <div className="bg-zinc-900/50 p-10 rounded-[2.5rem] border border-zinc-900 border-l-4 border-l-gold-500 shadow-inner">
+                            <p className="text-sm text-zinc-300 leading-[1.8] font-medium whitespace-pre-wrap">
+                                {selectedEmail.content}
+                            </p>
                         </div>
 
-                        <div className="p-8 space-y-6 flex-1 bg-zinc-900/30">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Destinatário</label>
-                                <input
-                                    type="text"
-                                    placeholder="Nome ou E-mail do escritório..."
-                                    value={composeData.recipient}
-                                    onChange={(e) => setComposeData({ ...composeData, recipient: e.target.value })}
-                                    className="w-full px-6 py-4 bg-black border border-zinc-800 rounded-2xl outline-none focus:border-gold-500 text-xs text-white font-bold transition-all"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Assunto</label>
-                                <input
-                                    type="text"
-                                    placeholder="Assunto da mensagem..."
-                                    value={composeData.subject}
-                                    onChange={(e) => setComposeData({ ...composeData, subject: e.target.value })}
-                                    className="w-full px-6 py-4 bg-black border border-zinc-800 rounded-2xl outline-none focus:border-gold-500 text-xs text-white font-bold transition-all"
-                                />
-                            </div>
-                            <div className="space-y-2 flex-1 flex flex-col">
-                                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Mensagem</label>
-                                <textarea
-                                    placeholder="Escreva sua mensagem aqui..."
-                                    value={composeData.content}
-                                    onChange={(e) => setComposeData({ ...composeData, content: e.target.value })}
-                                    className="flex-1 w-full px-6 py-6 bg-black border border-zinc-800 rounded-3xl outline-none focus:border-gold-500 text-xs text-zinc-300 font-medium leading-relaxed resize-none transition-all"
-                                />
-                            </div>
+                        <div className="flex gap-4">
+                            <button className="flex-1 bg-zinc-900 text-zinc-400 py-6 rounded-3xl font-black uppercase text-[10px] tracking-widest border border-zinc-800 hover:bg-zinc-800 hover:text-white transition-all">Arquivar</button>
+                            <button className="flex-1 bg-gold-500 text-black py-6 rounded-3xl font-black uppercase text-[10px] tracking-widest shadow-2xl active:scale-95 transition-all">Responder</button>
                         </div>
-                    </form>
-                ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center opacity-30 text-center p-12">
-                        <div className="w-24 h-24 bg-zinc-900 rounded-[2rem] border border-zinc-800 flex items-center justify-center mb-6">
-                            <Mail size={40} className="text-gold-500" />
-                        </div>
-                        <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-2 italic font-serif">Selecione uma mensagem</h3>
-                        <p className="text-xs text-zinc-500 max-w-xs leading-relaxed font-bold uppercase tracking-widest">Escolha uma conversa da lista ao lado para visualizar os detalhes.</p>
                     </div>
                 )}
-            </div>
+            </Modal>
+
+            {/* Compose Modal */}
+            <Modal
+                isOpen={isComposeOpen}
+                onClose={() => setIsComposeOpen(false)}
+                title="Compor Correspondência Judicial"
+            >
+                <form onSubmit={handleSendEmail} className="space-y-8 pt-4">
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Para (Tribunal / Parte)</label>
+                        <div className="relative">
+                            <Inbox className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-600" size={16} />
+                            <input value="atendimento@starjus.com.br" disabled className="w-full bg-zinc-900/50 border border-zinc-900 rounded-[1.5rem] pl-14 pr-8 py-5 text-sm text-zinc-500 font-bold cursor-not-allowed" />
+                        </div>
+                    </div>
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Assunto / Referência CNJ</label>
+                        <input
+                            required
+                            value={composeData.subject}
+                            onChange={(e) => setComposeData(prev => ({ ...prev, subject: e.target.value }))}
+                            className="w-full bg-zinc-950 border border-zinc-900 rounded-[1.5rem] px-8 py-5 text-sm text-white focus:border-gold-500 outline-none transition-all font-bold placeholder:text-zinc-800"
+                            placeholder="Ex: Contestação - Caso #4592 - Silva"
+                        />
+                    </div>
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Corpo da Mensagem</label>
+                        <textarea
+                            required
+                            value={composeData.content}
+                            onChange={(e) => setComposeData(prev => ({ ...prev, content: e.target.value }))}
+                            className="w-full bg-zinc-950 border border-zinc-900 rounded-[2rem] px-8 py-8 text-sm text-white focus:border-gold-500 outline-none transition-all font-medium placeholder:text-zinc-800 min-h-[300px] leading-relaxed resize-none"
+                            placeholder="Descreva aqui o teor jurídico..."
+                        />
+                    </div>
+                    <div className="pt-6 border-t border-zinc-900 flex gap-4">
+                        <button type="button" onClick={() => setIsComposeOpen(false)} className="flex-1 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-colors">Descartar</button>
+                        <button type="submit" className="flex-[2] bg-gold-500 text-black py-6 rounded-3xl font-black uppercase text-[10px] tracking-widest shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3">
+                            <Send size={16} /> Autenticar e Enviar
+                        </button>
+                    </div>
+                </form>
+            </Modal>
         </div>
     );
 };

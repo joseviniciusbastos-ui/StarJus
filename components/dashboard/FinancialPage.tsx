@@ -6,6 +6,7 @@ import { FinancialRecord } from '../../types';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/AuthContext';
 import { currencyClient, type Currency } from '../../lib/apis/currency';
+import { logAudit } from '../../lib/utils/audit';
 
 export const FinancialPage: React.FC = () => {
   const [records, setRecords] = useState<FinancialRecord[]>([]);
@@ -13,7 +14,6 @@ export const FinancialPage: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<FinancialRecord | null>(null);
   const { officeId } = useAuth();
-  const [selectedCurrency, setSelectedCurrency] = useState<Currency>('BRL');
   const [formData, setFormData] = useState({
     description: '',
     amount: '',
@@ -29,14 +29,14 @@ export const FinancialPage: React.FC = () => {
 
   const fetchRecords = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    const { data, error } = await (supabase
       .from('financial_records')
       .select('*')
       .eq('office_id', officeId)
-      .order('date', { ascending: false });
+      .order('date', { ascending: false }) as any);
 
     if (data) {
-      const mappedData: FinancialRecord[] = data.map(r => ({
+      const mappedData: FinancialRecord[] = (data as any[]).map(r => ({
         id: r.id,
         description: r.description,
         type: r.type as 'Income' | 'Expense',
@@ -56,7 +56,6 @@ export const FinancialPage: React.FC = () => {
     setLoading(false);
   };
 
-  // FIXED: Using amount_brl for accurate calculations
   const totalInflow = records
     .filter(r => r.type === 'Income')
     .reduce((acc, r) => acc + (r.amount_brl || r.amount_numeric || 0), 0);
@@ -68,6 +67,7 @@ export const FinancialPage: React.FC = () => {
   const yieldAcumulado = totalInflow - totalOutflow;
 
   const formatCurrency = (val: number) => {
+    if (val >= 1000000) return `R$ ${(val / 1000000).toFixed(1)}M`;
     if (val >= 1000) return `R$ ${(val / 1000).toFixed(1)}k`;
     return `R$ ${val.toFixed(2)}`;
   };
@@ -77,7 +77,7 @@ export const FinancialPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const amountNumeric = parseFloat(formData.amount.replace('.', '').replace(',', '.'));
+      const amountNumeric = parseFloat(formData.amount.replace(/\./g, '').replace(',', '.'));
 
       if (isNaN(amountNumeric) || amountNumeric <= 0) {
         toast.error('Valor inválido');
@@ -85,7 +85,6 @@ export const FinancialPage: React.FC = () => {
         return;
       }
 
-      // Convert to BRL if different currency
       let amountBRL = amountNumeric;
       let exchangeRate = 1;
 
@@ -109,14 +108,28 @@ export const FinancialPage: React.FC = () => {
         status: 'Paid'
       };
 
-      const { error } = await supabase
+      const { data, error } = await (supabase
         .from('financial_records')
-        .upsert(editingRecord ? { id: editingRecord.id, ...recordData } : recordData);
+        .upsert(editingRecord ? { id: editingRecord.id, ...recordData } : recordData)
+        .select() as any);
 
       if (error) {
         toast.error('Erro ao salvar lançamento');
         console.error(error);
       } else {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user && officeId) {
+          await logAudit({
+            userId: user.id,
+            officeId: officeId,
+            action: editingRecord ? 'UPDATE_FINANCIAL' : 'INSERT_FINANCIAL',
+            entityType: 'financial',
+            entityId: editingRecord ? editingRecord.id.toString() : (data as any)?.[0]?.id.toString(),
+            oldData: editingRecord,
+            newData: recordData
+          });
+        }
+
         toast.success(editingRecord ? 'Lançamento atualizado!' : 'Lançamento criado!');
         setIsAddModalOpen(false);
         setEditingRecord(null);
@@ -140,10 +153,25 @@ export const FinancialPage: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     if (!confirm('Deseja realmente excluir este lançamento?')) return;
-    const { error } = await supabase.from('financial_records').delete().eq('id', id);
+
+    const recordToDelete = records.find(r => r.id === id);
+
+    const { error } = await (supabase.from('financial_records').delete().eq('id', id) as any);
     if (error) {
       toast.error('Erro ao excluir lançamento');
     } else {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && officeId && recordToDelete) {
+        await logAudit({
+          userId: user.id,
+          officeId: officeId,
+          action: 'DELETE_FINANCIAL',
+          entityType: 'financial',
+          entityId: id.toString(),
+          oldData: recordToDelete
+        });
+      }
+
       toast.success('Lançamento excluído');
       fetchRecords();
     }
@@ -168,7 +196,8 @@ export const FinancialPage: React.FC = () => {
                   amount: '',
                   type: 'Income',
                   date: new Date().toISOString().split('T')[0],
-                  category: 'Honorários'
+                  category: 'Honorários',
+                  currency: 'BRL'
                 });
                 setIsAddModalOpen(true);
               }}
@@ -220,11 +249,13 @@ export const FinancialPage: React.FC = () => {
                     setEditingRecord(record);
                     setFormData({
                       description: record.description,
-                      amount: record.amount.replace('R$ ', ''),
+                      amount: record.amount_numeric.toString().replace('.', ','),
                       type: record.type,
                       date: record.date,
-                      category: record.category
+                      category: record.category,
+                      currency: record.currency as Currency
                     });
+                    setIsAddModalOpen(true);
                   }}>
                     <td className="px-12 py-10">
                       <div className="flex items-center gap-6">

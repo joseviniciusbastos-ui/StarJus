@@ -11,10 +11,12 @@ import { FinancialPage } from './components/dashboard/FinancialPage';
 import { ProductivityPage } from './components/dashboard/ProductivityPage';
 import { CondosPage } from './components/dashboard/CondosPage';
 import { ReportsPage } from './components/dashboard/ReportsPage';
-import { AuditLogsPage } from './components/dashboard/AuditLogsPage';
 import { EmailModule } from './components/dashboard/EmailModule';
 import { ProfilePage } from './components/dashboard/ProfilePage';
+import { AuditLogsPage } from './components/dashboard/AuditLogsPage';
+import { CalendarPage } from './components/dashboard/CalendarPage';
 import { AuthProvider, useAuth } from './lib/AuthContext';
+import { TimerProvider } from './lib/TimerContext';
 import { Toaster } from 'react-hot-toast';
 
 // Dashboard Main View
@@ -233,7 +235,9 @@ const App: React.FC = () => {
     <AuthProvider>
       <BrowserRouter>
         <Toaster position="top-right" />
-        <AppRoutes />
+        <TimerProvider>
+          <AppRoutes />
+        </TimerProvider>
       </BrowserRouter>
     </AuthProvider>
   );

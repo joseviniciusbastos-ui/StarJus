@@ -6,6 +6,8 @@ import { Modal } from '../ui/Modal';
 import { Process, Client } from '../../types';
 import { FileUploader } from '../ui/FileUploader';
 import { AIInsightsPanel } from '../ai/AIInsightsPanel';
+import { logAudit } from '../../lib/utils/audit';
+import toast from 'react-hot-toast';
 
 export const ProcessesPage: React.FC = () => {
   const [processes, setProcesses] = useState<Process[]>([]);
@@ -69,21 +71,20 @@ export const ProcessesPage: React.FC = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const commentData = {
-      process_id: selectedProcess.id,
-      content: newComment,
-      user_id: user.id,
-    };
+    try {
+      const { error } = await (supabase
+        .from('process_comments')
+        .insert([{
+          process_id: selectedProcess.id,
+          content: newComment,
+          user_id: user.id,
+        }] as any));
 
-    const { error } = await supabase
-      .from('process_comments')
-      .insert([commentData]);
-
-    if (error) {
-      console.error('Error adding comment:', error);
-    } else {
+      if (error) throw error;
       setNewComment('');
-      // Realtime will handle the update
+    } catch (err) {
+      console.error('Error adding comment:', err);
+      toast.error('Erro ao adicionar comentário');
     }
   };
 
@@ -93,37 +94,52 @@ export const ProcessesPage: React.FC = () => {
   };
 
   const fetchProcesses = async () => {
+    if (!officeId) return;
     setLoading(true);
-    const { data, error } = await supabase
-      .from('processes')
-      .select(`
-        *,
-        clients (
-          name
-        )
-      `)
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await (supabase
+        .from('processes')
+        .select(`
+          *,
+          clients:client_id (
+            name
+          )
+        `)
+        .eq('office_id', officeId)
+        .order('created_at', { ascending: false }) as any);
 
-    if (data) {
-      const mappedData: Process[] = data.map(p => ({
-        id: p.id.toString(),
-        number: p.number,
-        title: p.title,
-        client: (p.clients as any)?.name || 'Cliente não vinculado',
-        court: p.court,
-        status: p.status as any,
-        lastUpdate: p.last_update,
-        value: p.value_text,
-        updates: []
-      }));
-      setProcesses(mappedData);
+      if (error) throw error;
+
+      if (data) {
+        const mappedData: Process[] = (data as any[]).map(p => ({
+          id: p.id.toString(),
+          number: p.process_number,
+          title: p.title,
+          client: p.clients?.name || 'Cliente não vinculado',
+          court: p.court,
+          status: p.status as any,
+          lastUpdate: p.last_update,
+          value: p.value_text,
+          updates: []
+        }));
+        setProcesses(mappedData);
+      }
+    } catch (err) {
+      console.error('Error fetching processes:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error('Você precisa estar logado para realizar esta ação.');
+      return;
+    }
 
     const processData = {
       title: formData.get('title') as string,
@@ -132,39 +148,69 @@ export const ProcessesPage: React.FC = () => {
       status: 'active' as const,
       client_id: formData.get('client_id') ? parseInt(formData.get('client_id') as string) : null,
       office_id: officeId,
+      value_text: formData.get('value') as string || null,
+      last_update: new Date().toISOString(),
     };
 
-    if (editingProcess) {
-      const { error } = await supabase
-        .from('processes')
-        .update(processData)
-        .eq('id', editingProcess.id);
+    try {
+      if (editingProcess) {
+        const { error } = await (supabase
+          .from('processes')
+          .update(processData)
+          .eq('id', editingProcess.id) as any);
 
-      if (error) {
-        console.error('Error updating process:', error);
-      } else {
-        fetchProcesses();
+        if (error) throw error;
+
+        // Audit Log
+        if (user && officeId) {
+          await logAudit({
+            userId: user.id,
+            officeId: officeId,
+            action: 'UPDATE_PROCESS',
+            entityType: 'process',
+            entityId: editingProcess.id.toString(),
+            oldData: editingProcess,
+            newData: processData
+          });
+        }
+
+        toast.success('Estratégia processual atualizada');
         setEditingProcess(null);
-      }
-    } else {
-      const { error } = await supabase
-        .from('processes')
-        .insert([processData]);
-
-      if (error) {
-        console.error('Error creating process:', error);
       } else {
-        fetchProcesses();
+        const { data, error } = await (supabase
+          .from('processes')
+          .insert([processData])
+          .select() as any);
+
+        if (error) throw error;
+
+        // Audit Log
+        if (user && officeId && (data as any)?.[0]) {
+          await logAudit({
+            userId: user.id,
+            officeId: officeId,
+            action: 'INSERT_PROCESS',
+            entityType: 'process',
+            entityId: (data as any)[0].id.toString(),
+            newData: processData
+          });
+        }
+
+        toast.success('Captação processual efetivada com sucesso');
         setIsAddModalOpen(false);
       }
+      fetchProcesses();
+    } catch (error: any) {
+      console.error('Error submitting process:', error);
+      toast.error(`Erro: ${error.message || 'Não foi possível salvar o processo.'}`);
     }
   };
 
   const filteredProcesses = processes.filter(p => {
-    const matchesSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.client.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = !activeFilter || p.status === activeFilter || p.court.includes(activeFilter);
+    const matchesSearch = p.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.client?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = !activeFilter || p.status === activeFilter || p.court?.includes(activeFilter);
     return matchesSearch && matchesFilter;
   });
 
@@ -268,7 +314,6 @@ export const ProcessesPage: React.FC = () => {
               </div>
             </div>
 
-            {/* AI Insights Panel */}
             <AIInsightsPanel
               processId={selectedProcess.id}
               processNumber={selectedProcess.number}

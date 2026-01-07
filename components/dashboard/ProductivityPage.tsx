@@ -8,14 +8,14 @@ import { Task, TaskPriority, TaskStatus } from '../../types';
 import { KanbanBoard } from './KanbanBoard';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/AuthContext';
+import { useTimer } from '../../lib/TimerContext';
 
 export const ProductivityPage: React.FC = () => {
   const { officeId } = useAuth();
+  const { time: pomodoroTime, isTimerActive: isActive, isPaused, start, pause, resume, stop: resetTimer, formatTime } = useTimer();
   const [activeTab, setActiveTab] = useState<'matrix' | 'kanban' | 'sheets' | 'agenda'>('matrix');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const [pomodoroTime, setPomodoroTime] = useState(25 * 60);
-  const [isActive, setIsActive] = useState(false);
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
@@ -27,10 +27,10 @@ export const ProductivityPage: React.FC = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('tasks')
-      .select('*');
+      .select('*') as any;
 
     if (data) {
-      setTasks(data.map(t => ({
+      setTasks((data as any[]).map(t => ({
         id: t.id.toString(),
         title: t.title,
         priority: t.priority as any,
@@ -43,28 +43,28 @@ export const ProductivityPage: React.FC = () => {
     setLoading(false);
   };
 
-  useEffect(() => {
-    let interval: any;
-    if (isActive && pomodoroTime > 0) {
-      interval = setInterval(() => setPomodoroTime(t => t - 1), 1000);
-    } else if (pomodoroTime === 0) {
-      setIsActive(false);
-    }
-    return () => clearInterval(interval);
-  }, [isActive, pomodoroTime]);
-
-  const formatTime = (s: number) => {
-    const m = Math.floor(s / 60);
-    const sec = s % 60;
-    return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
-  };
-
   const handleEditTask = (task: Task) => {
     setEditingTask(task);
   };
 
   return (
     <div className="space-y-12 animate-in fade-in duration-700">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {[
+          { label: 'Taxa de Êxito', value: '78%', sub: 'Média Regional: 62%', color: 'text-emerald-500' },
+          { label: 'Eficiência Operacional', value: '92%', sub: '+12% este mês', color: 'text-gold-500' },
+          { label: 'SLA de Resposta', value: '4.2h', sub: 'Target: 6.0h', color: 'text-blue-500' }
+        ].map((kpi, idx) => (
+          <div key={idx} className="premium-card p-8 rounded-[2.5rem] space-y-2">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-600">{kpi.label}</span>
+            <div className="flex items-baseline gap-3">
+              <span className={`text-4xl font-black tracking-tighter ${kpi.color}`}>{kpi.value}</span>
+              <span className="text-[10px] font-bold text-slate-400 italic">{kpi.sub}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <div className="flex flex-col xl:flex-row gap-12">
         <div className="flex-1 space-y-10 md:space-y-12">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
@@ -160,13 +160,13 @@ export const ProductivityPage: React.FC = () => {
               </div>
               <div className="flex gap-8 mb-10">
                 <button
-                  onClick={() => setIsActive(!isActive)}
-                  className={`w-20 h-20 rounded-3xl flex items-center justify-center transition-all ${isActive ? 'bg-red-500/20 text-red-500 border border-red-500/20' : 'bg-white text-black shadow-3xl hover:scale-105 active:scale-95'}`}
+                  onClick={() => isActive ? (isPaused ? resume() : pause()) : start()}
+                  className={`w-20 h-20 rounded-3xl flex items-center justify-center transition-all ${isActive && !isPaused ? 'bg-red-500/20 text-red-500 border border-red-500/20' : 'bg-white text-black shadow-3xl hover:scale-105 active:scale-95'}`}
                 >
-                  {isActive ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" />}
+                  {isActive && !isPaused ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" />}
                 </button>
                 <button
-                  onClick={() => { setIsActive(false); setPomodoroTime(25 * 60); }}
+                  onClick={() => resetTimer()}
                   className="w-20 h-20 bg-zinc-900 text-zinc-600 rounded-3xl flex items-center justify-center border border-zinc-800 hover:text-gold-500 transition-all shadow-xl"
                 >
                   <RotateCcw size={28} />

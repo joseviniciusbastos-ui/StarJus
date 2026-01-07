@@ -8,6 +8,8 @@ interface AuthContextType {
     loading: boolean;
     signOut: () => Promise<void>;
     officeId: string | null;
+    userRole: 'owner' | 'manager' | 'staff' | null;
+    officeName: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,6 +19,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [officeId, setOfficeId] = useState<string | null>(null);
+    const [userRole, setUserRole] = useState<'owner' | 'manager' | 'staff' | null>(null);
+    const [officeName, setOfficeName] = useState<string | null>(null);
 
     useEffect(() => {
         // Get initial session
@@ -35,6 +39,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 fetchUserOffice(session.user.id);
             } else {
                 setOfficeId(null);
+                setUserRole(null);
+                setOfficeName(null);
             }
             setLoading(false);
         });
@@ -43,23 +49,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, []);
 
     const fetchUserOffice = async (userId: string) => {
-        const { data, error } = await supabase
+        const { data: memberData, error: memberError } = await (supabase
             .from('office_members')
-            .select('office_id')
+            .select('office_id, role')
             .eq('user_id', userId)
-            .single();
+            .single() as any);
 
-        if (data) {
-            setOfficeId(data.office_id);
+        if (memberData) {
+            setOfficeId((memberData as any).office_id);
+            setUserRole((memberData as any).role as any);
+
+            // Fetch Office Name
+            const { data: officeData } = await (supabase
+                .from('offices')
+                .select('name')
+                .eq('id', (memberData as any).office_id)
+                .single() as any);
+
+            if (officeData) {
+                setOfficeName((officeData as any).name);
+            }
         }
     };
 
     const signOut = async () => {
         await supabase.auth.signOut();
+        setOfficeId(null);
+        setUserRole(null);
+        setOfficeName(null);
     };
 
     return (
-        <AuthContext.Provider value={{ session, user, loading, signOut, officeId }}>
+        <AuthContext.Provider value={{ session, user, loading, signOut, officeId, userRole, officeName }}>
             {children}
         </AuthContext.Provider>
     );

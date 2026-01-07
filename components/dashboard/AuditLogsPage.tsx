@@ -1,115 +1,164 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Search, Calendar, User, Activity, Clock, ChevronRight, Eye } from 'lucide-react';
+import { Shield, Search, Filter, Clock, User, ArrowRight, History } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/AuthContext';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface AuditLog {
     id: string;
-    created_at: string;
     action: string;
     entity_type: string;
     entity_id: string;
-    user_id: string;
-    new_data: any;
     old_data: any;
+    new_data: any;
+    created_at: string;
+    user_id: string;
+    user_email?: string;
 }
 
 export const AuditLogsPage: React.FC = () => {
+    const { officeId, userRole } = useAuth();
     const [logs, setLogs] = useState<AuditLog[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const { officeId } = useAuth();
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
-        fetchLogs();
-    }, []);
+        if (officeId) fetchLogs();
+    }, [officeId]);
 
     const fetchLogs = async () => {
         setLoading(true);
-        const { data, error } = await supabase
+        const { data, error } = await (supabase
             .from('audit_logs')
-            .select('*')
+            .select(`
+                *,
+                profiles:user_id ( full_name, email )
+            `)
+            .eq('office_id', officeId)
             .order('created_at', { ascending: false })
-            .limit(50);
+            .limit(100) as any);
 
-        if (data) setLogs(data);
+        if (data) {
+            setLogs(data.map((l: any) => ({
+                ...l,
+                user_email: l.profiles?.email || 'N/A',
+                user_name: l.profiles?.full_name || 'Usuário Desconhecido'
+            })));
+        }
         setLoading(false);
     };
 
-    const filteredLogs = logs.filter(log =>
-        log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.entity_type.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    if (userRole === 'staff') {
+        return (
+            <div className="min-h-[60vh] flex flex-col items-center justify-center text-center space-y-6">
+                <Shield size={64} className="text-red-500 opacity-20" />
+                <h1 className="text-3xl font-black text-slate-950 dark:text-white uppercase">Acesso Restrito</h1>
+                <p className="text-slate-500 max-w-md font-bold italic">Esta área é exclusiva para gestores e proprietários do escritório.</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="space-y-10 animate-fade-in-up">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-                <div className="space-y-2">
-                    <h1 className="text-4xl font-black tracking-tighter text-slate-950 dark:text-white uppercase leading-none italic font-serif gold-gradient-text">Audit Logs.</h1>
-                    <p className="text-slate-500 dark:text-zinc-500 font-black uppercase text-[10px] tracking-[0.4em]">Monitoramento de Integridade Alpha</p>
+        <div className="space-y-10 animate-in fade-in duration-700">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="space-y-1">
+                    <h1 className="text-4xl font-black text-slate-950 dark:text-white tracking-tight uppercase">Governança & <span className="gold-gradient-text">Auditoria</span></h1>
+                    <p className="text-slate-500 dark:text-zinc-500 font-bold italic">Histórico completo de integridade e modificações sistêmicas.</p>
                 </div>
-                <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center gap-3">
-                    <Shield className="text-emerald-500" size={20} />
-                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Sistema Inviolável</span>
+
+                <div className="flex items-center gap-4">
+                    <div className="bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-900 rounded-2xl px-6 py-3 flex items-center gap-3 shadow-xl">
+                        <Search size={18} className="text-slate-400" />
+                        <input
+                            type="text"
+                            placeholder="Pesquisar logs..."
+                            className="bg-transparent border-none outline-none text-sm font-bold text-slate-950 dark:text-white w-64"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
                 </div>
             </div>
 
-            <div className="premium-card p-6 rounded-[2.5rem]">
-                <div className="relative">
-                    <Search className="absolute left-6 top-4.5 h-5 w-5 text-slate-400" />
-                    <input
-                        type="text"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="block w-full pl-16 pr-6 py-4.5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-900 rounded-3xl outline-none text-slate-950 dark:text-white font-black text-sm shadow-inner"
-                        placeholder="Filtrar por ação ou entidade..."
-                    />
+            <div className="bg-white dark:bg-zinc-950 rounded-[3rem] border border-slate-200 dark:border-zinc-900 overflow-hidden shadow-2xl">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-slate-50 dark:bg-zinc-900/50 border-b border-slate-200 dark:border-zinc-900">
+                                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Timestamp</th>
+                                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Usuário</th>
+                                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Ação</th>
+                                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Entidade</th>
+                                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Modificações</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-zinc-900">
+                            {loading ? (
+                                <tr>
+                                    <td colSpan={5} className="px-8 py-20 text-center text-slate-400 font-black animate-pulse">Carregando rastro digital...</td>
+                                </tr>
+                            ) : logs.length === 0 ? (
+                                <tr>
+                                    <td colSpan={5} className="px-8 py-20 text-center text-slate-400 font-black">Nenhum rastro encontrado.</td>
+                                </tr>
+                            ) : logs.map((log) => (
+                                <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-zinc-900/30 transition-colors group">
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-center gap-3">
+                                            <Clock size={16} className="text-gold-500 opacity-40" />
+                                            <div className="flex flex-col">
+                                                <span className="text-xs font-black text-slate-900 dark:text-white">
+                                                    {format(new Date(log.created_at), 'dd MMM, HH:mm', { locale: ptBR })}
+                                                </span>
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                                                    {format(new Date(log.created_at), 'yyyy')}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-6 text-sm font-black text-slate-900 dark:text-zinc-300">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-zinc-800 flex items-center justify-center text-slate-400">
+                                                <User size={14} />
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span>{(log as any).user_name}</span>
+                                                <span className="text-[10px] font-bold text-slate-400 lowercase">{log.user_email}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${log.action.includes('INSERT') ? 'bg-emerald-500/10 text-emerald-500' :
+                                                log.action.includes('UPDATE') ? 'bg-gold-500/10 text-gold-500' :
+                                                    'bg-red-500/10 text-red-500'
+                                            }`}>
+                                            {log.action}
+                                        </span>
+                                    </td>
+                                    <td className="px-8 py-6 text-sm font-black text-slate-600 dark:text-zinc-500">
+                                        {log.entity_type} <span className="text-[10px] opacity-40 ml-1">#{log.entity_id}</span>
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-center gap-4">
+                                            {log.old_data && (
+                                                <div className="bg-red-500/5 p-2 rounded-lg border border-red-500/10 max-w-[150px] truncate text-[10px] text-red-400 line-through">
+                                                    {JSON.stringify(log.old_data)}
+                                                </div>
+                                            )}
+                                            {log.old_data && <ArrowRight size={14} className="text-slate-300" />}
+                                            {log.new_data && (
+                                                <div className="bg-emerald-500/5 p-2 rounded-lg border border-emerald-500/10 max-w-[150px] truncate text-[10px] text-emerald-500">
+                                                    {JSON.stringify(log.new_data)}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-
-            <div className="space-y-4">
-                {loading ? (
-                    <div className="text-center py-20">
-                        <Activity className="animate-spin text-gold-500 mx-auto mb-4" size={48} />
-                        <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Sincronizando Registros Alpha...</p>
-                    </div>
-                ) : filteredLogs.length === 0 ? (
-                    <div className="premium-card p-20 text-center rounded-[3rem]">
-                        <p className="text-slate-500 dark:text-zinc-500 font-black uppercase text-sm tracking-widest">Nenhum registro encontrado</p>
-                    </div>
-                ) : (
-                    filteredLogs.map((log) => (
-                        <div key={log.id} className="premium-card p-8 rounded-[2.5rem] flex flex-col md:flex-row items-center gap-8 group hover:border-gold-500/50 transition-all">
-                            <div className={`p-5 rounded-2xl bg-zinc-900 border border-zinc-800 ${log.action === 'DELETE' ? 'text-red-500' : 'text-gold-500'}`}>
-                                <Activity size={24} />
-                            </div>
-
-                            <div className="flex-1 space-y-2">
-                                <div className="flex items-center gap-3">
-                                    <span className={`px-3 py-1 text-[8px] font-black rounded-full uppercase tracking-widest ${log.action === 'INSERT' ? 'bg-emerald-500/10 text-emerald-500' : log.action === 'UPDATE' ? 'bg-blue-500/10 text-blue-500' : 'bg-red-500/10 text-red-500'}`}>
-                                        {log.action}
-                                    </span>
-                                    <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{log.entity_type} #{log.entity_id}</span>
-                                </div>
-                                <h3 className="text-lg font-black text-white uppercase tracking-tight">Alteração no ecossistema detectada</h3>
-                            </div>
-
-                            <div className="flex items-center gap-10 w-full md:w-auto">
-                                <div className="flex items-center gap-3 text-zinc-500">
-                                    <Clock size={16} />
-                                    <span className="text-[10px] font-bold uppercase tracking-tight">{new Date(log.created_at).toLocaleString()}</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-zinc-500 border-l border-zinc-800 pl-10">
-                                    <User size={16} />
-                                    <span className="text-[10px] font-bold uppercase tracking-tight truncate max-w-[100px]">{log.user_id}</span>
-                                </div>
-                                <button className="p-4 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-500 hover:text-white transition-all opacity-0 group-hover:opacity-100">
-                                    <Eye size={18} />
-                                </button>
-                            </div>
-                        </div>
-                    ))
-                )}
             </div>
         </div>
     );
