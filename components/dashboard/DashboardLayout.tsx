@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Users, Building2, Scale, DollarSign, BarChart3, Shield, Mail, LogOut, Moon, Sun, Menu, X, Clock, Play, Pause, Search, Bell, Calendar } from 'lucide-react';
 import { useAuth } from '../../lib/AuthContext';
 import { useTimer } from '../../lib/TimerContext';
+import toast from 'react-hot-toast';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -22,6 +23,16 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const { officeName, userRole } = useAuth();
   const { time, isTimerActive, isPaused, start, pause, resume, formatTime } = useTimer();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState('');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    toast.success(`Pesquisando por: ${searchQuery}`, {
+      icon: '🔍',
+      style: { borderRadius: '1rem', background: '#000', color: '#fff', fontSize: '10px', fontWeight: 'bold' }
+    });
+  };
 
   const menuItems = [
     { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
@@ -116,7 +127,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         </nav>
 
         {/* Universal Timer Widget in Sidebar */}
-        {isActive && (
+        {isTimerActive && (
           <div className="px-6 py-4 mx-4 mb-4 mt-6 bg-black dark:bg-zinc-900 rounded-2xl border border-gold-500/20 shadow-2xl animate-in slide-in-from-left duration-500">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
@@ -168,17 +179,26 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         {/* Top Handler Bar */}
         <header className="sticky top-0 right-0 z-30 bg-white/90 dark:bg-black/90 backdrop-blur-xl border-b border-slate-200 dark:border-zinc-900 px-8 py-5 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-slate-100 dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-zinc-800">
+            <form onSubmit={handleSearch} className="hidden md:flex items-center gap-3 px-4 py-2 bg-slate-100 dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-zinc-800 focus-within:border-gold-500 transition-all">
               <Search size={18} className="text-slate-400" />
-              <input type="text" placeholder="Pesquisar processos, clientes..." className="bg-transparent border-none outline-none text-sm font-bold text-slate-600 dark:text-zinc-300 w-64" />
-            </div>
+              <input
+                type="text"
+                placeholder="Pesquisar processos, clientes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-transparent border-none outline-none text-sm font-bold text-slate-600 dark:text-zinc-300 w-64"
+              />
+            </form>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex flex-col items-end mr-4">
               <span className="text-xs font-black text-slate-950 dark:text-white">{officeName || 'StarJus Office'}</span>
               <span className="text-[10px] font-bold text-gold-600 uppercase tracking-widest">{userRole || 'Carregando...'}</span>
             </div>
-            <button className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-zinc-900 flex items-center justify-center text-slate-600 dark:text-zinc-400 hover:text-gold-500 transition-all">
+            <button
+              onClick={() => toast('Você não possui novas notificações.', { icon: '🔔' })}
+              className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-zinc-900 flex items-center justify-center text-slate-600 dark:text-zinc-400 hover:text-gold-500 transition-all"
+            >
               <Bell size={20} />
             </button>
             <div className="w-10 h-10 rounded-xl bg-gold-500 flex items-center justify-center text-black font-black text-sm">

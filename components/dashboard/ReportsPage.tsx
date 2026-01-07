@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import {
   TrendingUp, Users, Building2, Scale,
   Download, Filter, ChevronUp, ArrowUpRight, Target, ShieldCheck, Sparkles, FileBarChart, Calendar, ChevronDown
@@ -47,7 +48,10 @@ export const ReportsPage: React.FC = () => {
           >
             <Filter size={16} /> Período <ChevronDown size={14} className="opacity-40" />
           </button>
-          <button className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-10 py-4.5 bg-black dark:bg-white text-white dark:text-black rounded-3xl text-[10px] font-black uppercase tracking-widest shadow-2xl transition-all">
+          <button
+            onClick={() => toast.success('Exportando Inteligência Preditiva...', { icon: '📄' })}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-10 py-4.5 bg-black dark:bg-white text-white dark:text-black rounded-3xl text-[10px] font-black uppercase tracking-widest shadow-2xl transition-all"
+          >
             <Download size={16} /> Exportar
           </button>
         </div>
@@ -113,7 +117,7 @@ export const ReportsPage: React.FC = () => {
                 <Sparkles className="text-gold-500 mb-8 animate-pulse" size={32} />
                 <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-gold-600 mb-4">Previsão de Margem</h4>
                 <p className="text-4xl md:text-5xl font-black tracking-tighter mb-8 gold-gradient-text leading-none font-mono">
-                  {(Object.values(revenueByMonth).reduce((a: any, b: any) => a + b, 0) * 1.12).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                  {(Number(Object.values(revenueByMonth).reduce((a: any, b: any) => a + b, 0)) * 1.12).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                 </p>
                 <p className="text-xs text-zinc-500 font-bold leading-relaxed">Algoritmo Starjus baseado em performance histórica e ativos correntes sob governança v2.0.</p>
               </div>

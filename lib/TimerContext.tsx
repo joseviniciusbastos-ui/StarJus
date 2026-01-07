@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { useNotification } from './hooks/useNotification';
 
 interface TimerContextType {
     time: number;
@@ -14,14 +15,17 @@ interface TimerContextType {
 const TimerContext = createContext<TimerContextType | undefined>(undefined);
 
 export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { playSound } = useNotification();
     const [time, setTime] = useState(25 * 60);
     const [isTimerActive, setIsTimerActive] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
     const intervalRef = useRef<any>(null);
+    const hasPlayedSound = useRef(false);
 
     const start = () => {
         setIsTimerActive(true);
         setIsPaused(false);
+        hasPlayedSound.current = false;
     };
 
     const pause = () => {
@@ -36,6 +40,7 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setIsTimerActive(false);
         setIsPaused(false);
         setTime(25 * 60);
+        hasPlayedSound.current = false;
         if (intervalRef.current) clearInterval(intervalRef.current);
     };
 
@@ -46,6 +51,10 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             }, 1000);
         } else if (time === 0) {
             setIsTimerActive(false);
+            if (!hasPlayedSound.current) {
+                playSound('pomodoro');
+                hasPlayedSound.current = true;
+            }
             if (intervalRef.current) clearInterval(intervalRef.current);
         } else {
             if (intervalRef.current) clearInterval(intervalRef.current);
@@ -54,7 +63,7 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    }, [isTimerActive, isPaused, time]);
+    }, [isTimerActive, isPaused, time, playSound]);
 
     const formatTime = (s: number) => {
         const h = Math.floor(s / 3600);

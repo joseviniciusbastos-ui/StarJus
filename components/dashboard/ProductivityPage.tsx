@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import {
   Zap, Clock, Play, Pause, RotateCcw, LayoutGrid, List, Layers,
   Plus, Trash2, Edit2, Calendar, Sparkles, Search, ChevronRight, Hash, Flag, Target, MoreVertical, CheckCircle2
@@ -18,6 +19,7 @@ export const ProductivityPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchTasks();
@@ -45,6 +47,73 @@ export const ProductivityPage: React.FC = () => {
 
   const handleEditTask = (task: Task) => {
     setEditingTask(task);
+  };
+
+  const handleCreateTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const title = formData.get('title') as string;
+    const priority = formData.get('priority') as string;
+    const tag = formData.get('tag') as string;
+    const description = formData.get('description') as string;
+
+    setSaving(true);
+    try {
+      const { data, error } = await (supabase
+        .from('tasks')
+        .insert([{
+          title,
+          priority,
+          tag,
+          description,
+          status: 'A Fazer',
+          office_id: officeId,
+          due_date: new Date().toISOString()
+        }] as any)
+        .select() as any);
+
+      if (error) throw error;
+      toast.success('Operação iniciada com sucesso!');
+      fetchTasks();
+      setIsNewTaskModalOpen(false);
+    } catch (err) {
+      toast.error('Erro ao iniciar operação.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleUpdateTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTask) return;
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const title = formData.get('title') as string;
+    const priority = formData.get('priority') as string;
+    const tag = formData.get('tag') as string;
+    const description = formData.get('description') as string;
+
+    setSaving(true);
+    try {
+      const { error } = await (supabase
+        .from('tasks')
+        .update({
+          title,
+          priority,
+          tag,
+          description
+        } as any)
+        .eq('id', editingTask.id) as any);
+
+      if (error) throw error;
+      toast.success('Operação atualizada.');
+      fetchTasks();
+      setEditingTask(null);
+    } catch (err) {
+      toast.error('Erro ao atualizar operação.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -183,15 +252,15 @@ export const ProductivityPage: React.FC = () => {
         onClose={() => { setIsNewTaskModalOpen(false); setEditingTask(null); }}
         title={editingTask ? "Modificar Operação Jurídica" : "Iniciar Nova Operação"}
       >
-        <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-8" onSubmit={editingTask ? handleUpdateTask : handleCreateTask}>
           <div className="space-y-3">
             <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Denominação da Atividade</label>
-            <input defaultValue={editingTask?.title} required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Ex: Protocolar Tese de Mérito" />
+            <input name="title" defaultValue={editingTask?.title} required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Ex: Protocolar Tese de Mérito" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Prioridade Estratégica</label>
-              <select defaultValue={editingTask?.priority} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner appearance-none">
+              <select name="priority" defaultValue={editingTask?.priority} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner appearance-none">
                 <option value="High">Urgente • Resolver Imediato</option>
                 <option value="Medium">Estratégico • Semestre Corrente</option>
                 <option value="Low">Operacional • Delegação</option>
@@ -199,17 +268,17 @@ export const ProductivityPage: React.FC = () => {
             </div>
             <div className="space-y-3">
               <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Classificação (Tag)</label>
-              <input defaultValue={editingTask?.tag} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Ex: Tributário" />
+              <input name="tag" defaultValue={editingTask?.tag} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Ex: Tributário" />
             </div>
           </div>
           <div className="space-y-3">
             <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Instruções de Mérito / Notas</label>
-            <textarea defaultValue={editingTask?.description} className="w-full px-8 py-6 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-[2.5rem] outline-none text-slate-950 dark:text-white font-bold transition-all focus:border-gold-500 shadow-inner resize-none" rows={4} placeholder="Descreva os requisitos para a execução da atividade..." />
+            <textarea name="description" defaultValue={editingTask?.description} className="w-full px-8 py-6 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-[2.5rem] outline-none text-slate-950 dark:text-white font-bold transition-all focus:border-gold-500 shadow-inner resize-none" rows={4} placeholder="Descreva os requisitos para a execução da atividade..." />
           </div>
           <div className="pt-10 flex flex-col sm:flex-row gap-6 border-t border-slate-100 dark:border-zinc-900">
             <button type="button" onClick={() => { setIsNewTaskModalOpen(false); setEditingTask(null); }} className="flex-1 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-950 transition-all">Abortar</button>
-            <button type="submit" onClick={() => { setIsNewTaskModalOpen(false); setEditingTask(null); }} className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all">
-              {editingTask ? "Efetivar Alteração" : "Confirmar Operação"}
+            <button type="submit" disabled={saving} className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all disabled:opacity-50">
+              {saving ? 'Efetivando...' : editingTask ? "Efetivar Alteração" : "Confirmar Operação"}
             </button>
           </div>
         </form>

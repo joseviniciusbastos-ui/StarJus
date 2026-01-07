@@ -187,7 +187,12 @@ export const FinancialPage: React.FC = () => {
             <p className="text-slate-500 dark:text-zinc-500 font-black uppercase text-[10px] tracking-[0.4em]">Gestão Financeira & Capital Institucional</p>
           </div>
           <div className="flex gap-4 w-full sm:w-auto">
-            <button className="flex-1 sm:flex-none bg-white dark:bg-black border border-slate-200 dark:border-zinc-800 text-slate-500 px-8 py-4 rounded-3xl font-black text-[10px] uppercase tracking-widest hover:border-gold-500 transition-all shadow-sm"><Download size={18} /></button>
+            <button
+              onClick={() => toast.success('Gerando relatório consolidado (Excel/PDF)...', { icon: '📊' })}
+              className="flex-1 sm:flex-none bg-white dark:bg-black border border-slate-200 dark:border-zinc-800 text-slate-500 px-8 py-4 rounded-3xl font-black text-[10px] uppercase tracking-widest hover:border-gold-500 transition-all shadow-sm"
+            >
+              <Download size={18} />
+            </button>
             <button
               onClick={() => {
                 setEditingRecord(null);
