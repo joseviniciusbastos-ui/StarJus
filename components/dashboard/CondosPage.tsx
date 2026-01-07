@@ -3,6 +3,9 @@ import {
   Building2, Plus, Search, MapPin, History, Trash2, Edit2,
   ChevronRight, LayoutList, FileText, Sparkles, Clock, MoreVertical, Smartphone, User, Hash
 } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { useAuth } from '../../lib/AuthContext';
+import { logAudit } from '../../lib/utils/audit';
 import { Modal } from '../ui/Modal';
 import { Condominium, Unit } from '../../types';
 import { supabase } from '../../lib/supabase';
@@ -19,9 +22,12 @@ export const CondosPage: React.FC = () => {
   const [isUnitDetailOpen, setIsUnitDetailOpen] = useState(false);
   const [editingCondo, setEditingCondo] = useState<Condominium | null>(null);
 
+  const { officeId } = useAuth();
+  const [isSaving, setIsSaving] = useState(false);
+
   useEffect(() => {
-    fetchCondos();
-  }, []);
+    if (officeId) fetchCondos();
+  }, [officeId]);
 
   useEffect(() => {
     if (selectedCondo) {
@@ -31,15 +37,19 @@ export const CondosPage: React.FC = () => {
 
   const fetchCondos = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from('condominiums').select('*');
+    const { data, error } = await (supabase
+      .from('condominiums')
+      .select('*')
+      .eq('office_id', officeId) as any);
+
     if (data) {
-      const mapped: Condominium[] = data.map(c => ({
+      const mapped: Condominium[] = (data as any[]).map(c => ({
         id: c.id.toString(),
         name: c.name,
         cnpj: c.cnpj || '',
         address: c.address || '',
         totalUnits: c.total_units || 0,
-        activeProcesses: 0, // In a real app we'd join or calculate this
+        activeProcesses: 0,
         manager: c.manager || ''
       }));
       setCondos(mapped);
@@ -48,9 +58,9 @@ export const CondosPage: React.FC = () => {
   };
 
   const fetchUnits = async (condoId: string) => {
-    const { data, error } = await supabase.from('units').select('*').eq('condo_id', condoId);
+    const { data, error } = await (supabase.from('units').select('*').eq('condo_id', condoId) as any);
     if (data) {
-      const mapped: Unit[] = data.map(u => ({
+      const mapped: Unit[] = (data as any[]).map(u => ({
         id: u.id.toString(),
         condoId: u.condo_id.toString(),
         number: u.number,
@@ -73,6 +83,132 @@ export const CondosPage: React.FC = () => {
   const handleEditCondo = (c: Condominium, e: React.MouseEvent) => {
     e.stopPropagation();
     setEditingCondo(c);
+  };
+
+  const handleCreateCondo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const name = formData.get('name') as string;
+    const cnpj = formData.get('cnpj') as string;
+    const manager = formData.get('manager') as string;
+    const address = formData.get('address') as string;
+
+    setIsSaving(true);
+    try {
+      const { data, error } = await (supabase
+        .from('condominiums')
+        .insert([{
+          name,
+          cnpj,
+          manager,
+          address,
+          office_id: officeId
+        }] as any)
+        .select() as any);
+
+      if (error) throw error;
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && officeId) {
+        await logAudit({
+          userId: user.id,
+          officeId,
+          action: 'INSERT_CONDO',
+          entityType: 'condominium',
+          entityId: (data as any)?.[0]?.id.toString(),
+          newData: { name, cnpj, manager, address }
+        });
+      }
+
+      toast.success('Unidade Gestora registrada!');
+      fetchCondos();
+      setIsCondoModalOpen(false);
+    } catch (err) {
+      toast.error('Erro ao registrar.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleUpdateCondo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCondo) return;
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const name = formData.get('name') as string;
+    const cnpj = formData.get('cnpj') as string;
+    const manager = formData.get('manager') as string;
+    const address = formData.get('address') as string;
+
+    setIsSaving(true);
+    try {
+      const { error } = await (supabase
+        .from('condominiums')
+        .update({
+          name,
+          cnpj,
+          manager,
+          address
+        } as any)
+        .eq('id', editingCondo.id) as any);
+
+      if (error) throw error;
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && officeId) {
+        await logAudit({
+          userId: user.id,
+          officeId,
+          action: 'UPDATE_CONDO',
+          entityType: 'condominium',
+          entityId: editingCondo.id,
+          oldData: editingCondo,
+          newData: { name, cnpj, manager, address }
+        });
+      }
+
+      toast.success('Ativo atualizado.');
+      fetchCondos();
+      setEditingCondo(null);
+    } catch (err) {
+      toast.error('Erro ao atualizar.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCreateUnit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedCondo) return;
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const block = formData.get('block') as string;
+    const number = formData.get('number') as string;
+    const owner = formData.get('owner') as string;
+
+    setIsSaving(true);
+    try {
+      const { data, error } = await (supabase
+        .from('units')
+        .insert([{
+          condo_id: selectedCondo.id,
+          block,
+          number,
+          owner,
+          status: 'Compliant'
+        } as any] as any)
+        .select() as any);
+
+      if (error) throw error;
+
+      toast.success('Unidade habitacional registrada!');
+      fetchUnits(selectedCondo.id);
+      setIsUnitModalOpen(false);
+    } catch (err) {
+      toast.error('Erro ao registrar unidade.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -197,29 +333,29 @@ export const CondosPage: React.FC = () => {
         onClose={() => { setIsCondoModalOpen(false); setEditingCondo(null); }}
         title={editingCondo ? "Governança: Atualizar Ativo" : "Registrar Unidade Gestora"}
       >
-        <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-8" onSubmit={editingCondo ? handleUpdateCondo : handleCreateCondo}>
           <div className="space-y-3">
             <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Denominação do Empreendimento</label>
-            <input defaultValue={editingCondo?.name} required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Ex: Edifício Solar das Palmeiras" />
+            <input name="name" defaultValue={editingCondo?.name} required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Ex: Edifício Solar das Palmeiras" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">CNPJ Institucional</label>
-              <input defaultValue={editingCondo?.cnpj} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="00.000.000/0001-00" />
+              <input name="cnpj" defaultValue={editingCondo?.cnpj} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="00.000.000/0001-00" />
             </div>
             <div className="space-y-3">
               <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Síndico / Gestor</label>
-              <input defaultValue={editingCondo?.manager} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Nome do Responsável" />
+              <input name="manager" defaultValue={editingCondo?.manager} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Nome do Responsável" />
             </div>
           </div>
           <div className="space-y-3">
             <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Localização Física (Endereço)</label>
-            <input defaultValue={editingCondo?.address} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Rua, Número, Bairro, Cidade/UF" />
+            <input name="address" defaultValue={editingCondo?.address} className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Rua, Número, Bairro, Cidade/UF" />
           </div>
           <div className="pt-8 flex flex-col sm:flex-row gap-6 border-t border-slate-100 dark:border-zinc-900">
             <button type="button" onClick={() => { setIsCondoModalOpen(false); setEditingCondo(null); }} className="flex-1 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all">Cancelar</button>
-            <button type="submit" onClick={() => { setIsCondoModalOpen(false); setEditingCondo(null); }} className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all">
-              {editingCondo ? "Efetivar Alteração" : "Confirmar Registro"}
+            <button type="submit" disabled={isSaving} className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all disabled:opacity-50">
+              {isSaving ? "Sincronizando..." : editingCondo ? "Efetivar Alteração" : "Confirmar Registro"}
             </button>
           </div>
         </form>
@@ -227,24 +363,26 @@ export const CondosPage: React.FC = () => {
 
       {/* Modal Registrar Unidade Habitacional */}
       <Modal isOpen={isUnitModalOpen} onClose={() => setIsUnitModalOpen(false)} title="Nova Unidade Habitacional">
-        <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-8" onSubmit={handleCreateUnit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Torre / Bloco</label>
-              <input required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Ex: Torre A" />
+              <input name="block" required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Ex: Torre A" />
             </div>
             <div className="space-y-3">
               <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Número da Unidade</label>
-              <input required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Ex: 101" />
+              <input name="number" required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Ex: 101" />
             </div>
           </div>
           <div className="space-y-3">
             <label className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Titular de Direito (Proprietário)</label>
-            <input required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Nome Completo do Titular" />
+            <input name="owner" required className="w-full px-8 py-5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl outline-none text-slate-950 dark:text-white font-black transition-all focus:border-gold-500 shadow-inner" placeholder="Nome Completo do Titular" />
           </div>
           <div className="pt-8 flex flex-col sm:flex-row gap-6 border-t border-slate-100 dark:border-zinc-900">
             <button type="button" onClick={() => setIsUnitModalOpen(false)} className="flex-1 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all">Abortar</button>
-            <button type="submit" onClick={() => setIsUnitModalOpen(false)} className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all">Efetivar Unidade</button>
+            <button type="submit" disabled={isSaving} className="flex-[2] py-6 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl active:scale-95 transition-all disabled:opacity-50">
+              {isSaving ? "Efetivando..." : "Efetivar Unidade"}
+            </button>
           </div>
         </form>
       </Modal>

@@ -119,7 +119,7 @@ export const ReportsPage: React.FC = () => {
                 <p className="text-4xl md:text-5xl font-black tracking-tighter mb-8 gold-gradient-text leading-none font-mono">
                   {(Number(Object.values(revenueByMonth).reduce((a: any, b: any) => a + b, 0)) * 1.12).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                 </p>
-                <p className="text-xs text-zinc-500 font-bold leading-relaxed">Algoritmo Starjus baseado em performance histórica e ativos correntes sob governança v2.0.</p>
+                <p className="text-xs text-zinc-500 font-bold leading-relaxed">Algoritmo Starjus baseado em performance histórica e ativos correntes sob governança.</p>
               </div>
               <div className="premium-card rounded-[3rem] md:rounded-[4rem] p-12 flex flex-col items-center text-center space-y-8 bg-white dark:bg-black">
                 <div className="p-6 bg-gold-600/5 text-gold-600 rounded-[2.5rem] border border-gold-600/10 shadow-sm"><Target size={40} /></div>
@@ -141,7 +141,7 @@ export const ReportsPage: React.FC = () => {
           <FileBarChart size={64} className="text-gold-500 opacity-40" />
           <div className="space-y-3">
             <h3 className="text-3xl font-black text-slate-950 dark:text-white uppercase tracking-tighter italic font-serif">Módulo em Processamento.</h3>
-            <p className="text-sm text-slate-500 dark:text-zinc-500 font-bold italic">Relatórios avançados de {activeTab} estão sendo sincronizados com a base v2.0.</p>
+            <p className="text-sm text-slate-500 dark:text-zinc-500 font-bold italic">Relatórios avançados de {activeTab} estão sendo sincronizados com a base StarJus.</p>
           </div>
         </div>
       )}

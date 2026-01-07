@@ -110,7 +110,7 @@ export const FinancialPage: React.FC = () => {
 
       const { data, error } = await (supabase
         .from('financial_records')
-        .upsert(editingRecord ? { id: editingRecord.id, ...recordData } : recordData)
+        .upsert((editingRecord ? { id: editingRecord.id, ...recordData } : recordData) as any)
         .select() as any);
 
       if (error) {

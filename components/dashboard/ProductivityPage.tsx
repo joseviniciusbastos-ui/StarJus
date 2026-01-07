@@ -69,7 +69,7 @@ export const ProductivityPage: React.FC = () => {
           status: 'A Fazer',
           office_id: officeId,
           due_date: new Date().toISOString()
-        }] as any)
+        } as any] as any)
         .select() as any);
 
       if (error) throw error;
@@ -241,7 +241,7 @@ export const ProductivityPage: React.FC = () => {
                   <RotateCcw size={28} />
                 </button>
               </div>
-              <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em]">Protocolo de Foco v2.0</p>
+              <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em]">Protocolo de Foco</p>
             </div>
           </div>
         </div>

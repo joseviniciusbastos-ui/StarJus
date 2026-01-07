@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/AuthContext';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Modal } from '../ui/Modal';
 
 interface Email {
     id: string;
@@ -99,7 +100,7 @@ export const EmailModule: React.FC = () => {
                             <Mail className="text-gold-500" size={20} />
                         </div>
                         <div>
-                            <h2 className="text-sm font-black text-white uppercase tracking-widest">{officeName || 'Escritório'}</h2>
+                            <h2 className="text-sm font-black text-white uppercase tracking-widest">{officeName || 'Carregando Escritório...'}</h2>
                             <p className="text-[10px] text-gold-500/60 font-black lowercase tracking-tighter">
                                 {officeName ? `${officeName.toLowerCase().replace(/\s+/g, '')}@starjus.com.br` : 'office@starjus.com.br'}
                             </p>
