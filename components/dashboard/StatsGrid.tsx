@@ -85,8 +85,8 @@ export const StatsGrid: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-br from-gold-500/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="flex items-start justify-between mb-8 relative z-10">
             <div>
-              <p className="text-[10px] font-black text-slate-500 dark:text-zinc-600 uppercase tracking-[0.4em] mb-4 leading-none">{stat.label}</p>
-              <h3 className="text-4xl md:text-5xl font-black text-slate-950 dark:text-white tracking-tighter group-hover:gold-gradient-text transition-all duration-300">
+              <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.4em] mb-4 leading-none">{stat.label}</p>
+              <h3 className="text-4xl md:text-5xl font-black text-[var(--text-primary)] tracking-tighter group-hover:gold-gradient-text transition-all duration-300">
                 {stat.value}
               </h3>
             </div>
@@ -100,7 +100,10 @@ export const StatsGrid: React.FC = () => {
           <div className="flex items-center justify-between pt-8 border-t border-slate-100 dark:border-zinc-900 relative z-10">
             <div className="flex items-center gap-3">
               <div className={`w-2 h-2 rounded-full ${stat.isPositive ? 'bg-gold-500 shadow-[0_0_10px_rgba(212,175,55,0.6)]' : 'bg-red-600 animate-pulse'}`} />
-              <span className="text-[11px] font-black uppercase tracking-widest text-slate-600 dark:text-zinc-500">{stat.trend}</span>
+              <div className="flex flex-col">
+                <span className="text-[11px] font-black uppercase tracking-widest text-[var(--text-secondary)]">{stat.trend}</span>
+                <span className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mt-1">Status Alpha: {stats.inflow === 0 ? 'CALCULANDO' : 'SINCRONIZADO'}</span>
+              </div>
             </div>
             <ArrowUpRight size={18} className="text-slate-300 dark:text-zinc-800 group-hover:text-gold-500 transition-all" />
           </div>

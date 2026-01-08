@@ -217,15 +217,15 @@ export const FinancialPage: React.FC = () => {
           <div className="premium-card p-10 md:p-12 rounded-[3.5rem] group relative overflow-hidden">
             <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="p-4 bg-emerald-500/10 text-emerald-600 rounded-2xl border border-emerald-500/20 w-fit mb-8 shadow-sm"><TrendingUp size={24} /></div>
-            <p className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-[0.4em] mb-4 relative z-10">Inflow Líquido</p>
-            <h3 className="text-4xl md:text-5xl font-black text-slate-950 dark:text-white tracking-tighter group-hover:gold-gradient-text transition-all relative z-10">{formatCurrency(totalInflow)}</h3>
+            <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.4em] mb-4 relative z-10">Inflow Líquido</p>
+            <h3 className="text-4xl md:text-5xl font-black text-[var(--text-primary)] tracking-tighter group-hover:gold-gradient-text transition-all relative z-10">{formatCurrency(totalInflow)}</h3>
             <p className="text-[10px] text-emerald-600 font-black uppercase tracking-widest mt-6 flex items-center gap-2 relative z-10"><ArrowUpRight size={14} /> +12% vs Out</p>
           </div>
           <div className="premium-card p-10 md:p-12 rounded-[3.5rem] group relative overflow-hidden">
             <div className="absolute inset-0 bg-rose-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="p-4 bg-rose-500/10 text-rose-600 rounded-2xl border border-rose-500/20 w-fit mb-8 shadow-sm"><TrendingDown size={24} /></div>
-            <p className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-[0.4em] mb-4 relative z-10">Saídas de Operação</p>
-            <h3 className="text-4xl md:text-5xl font-black text-slate-950 dark:text-white tracking-tighter relative z-10">{formatCurrency(totalOutflow)}</h3>
+            <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.4em] mb-4 relative z-10">Saídas de Operação</p>
+            <h3 className="text-4xl md:text-5xl font-black text-[var(--text-primary)] tracking-tighter relative z-10">{formatCurrency(totalOutflow)}</h3>
             <p className="text-[10px] text-slate-400 dark:text-zinc-700 font-black uppercase tracking-widest mt-6 relative z-10">Abaixo do Budget</p>
           </div>
           <div className="bg-slate-950 dark:bg-zinc-950 p-10 md:p-12 rounded-[3.5rem] border border-gold-500/20 shadow-3xl flex flex-col justify-center relative overflow-hidden group">
@@ -268,15 +268,15 @@ export const FinancialPage: React.FC = () => {
                           {record.type === 'Income' ? <ArrowUpRight size={20} /> : <ArrowDownRight size={20} />}
                         </div>
                         <div className="min-w-0">
-                          <p className="text-base font-black text-slate-950 dark:text-white group-hover:text-gold-600 transition-colors truncate">{record.description}</p>
-                          <p className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest mt-1">{record.category}</p>
+                          <p className="text-base font-black text-[var(--text-primary)] group-hover:text-[var(--accent-primary)] transition-colors truncate">{record.description}</p>
+                          <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mt-1">{record.category} • CALCULADO</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-12 py-10 font-mono text-xs font-black text-slate-500 dark:text-zinc-600 text-center">{record.date}</td>
                     <td className="px-12 py-10 text-right">
                       <div className="flex items-center justify-end gap-10">
-                        <span className={`text-xl font-black tracking-tighter ${record.type === 'Income' ? 'text-slate-950 dark:text-white' : 'text-rose-600'}`}>
+                        <span className={`text-xl font-black tracking-tighter ${record.type === 'Income' ? 'text-[var(--text-primary)]' : 'text-rose-600'}`}>
                           {record.type === 'Income' ? '+' : '-'} {record.amount}
                         </span>
                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

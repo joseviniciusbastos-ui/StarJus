@@ -1,6 +1,9 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Building2, Scale, DollarSign, BarChart3, Shield, Mail, LogOut, Moon, Sun, Menu, X, Clock, Play, Pause, Search, Bell, Calendar } from 'lucide-react';
+import {
+  LayoutDashboard, Users, Building2, Scale, DollarSign, BarChart3, Shield, MapPin, ChevronRight, MessageSquare,
+  Calendar, MoreVertical, Star, UserCheck, Smartphone, Sparkles, User, Settings, LogOut, Moon, Sun, Menu, X, Clock, Play, Pause, Search, Bell, Mail, Trash2, Send, Inbox, Archive
+} from 'lucide-react';
 import { useAuth } from '../../lib/AuthContext';
 import { useTimer } from '../../lib/TimerContext';
 import toast from 'react-hot-toast';
@@ -35,18 +38,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   };
 
   const menuItems = [
-    { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/productivity', icon: BarChart3, label: 'Produtividade' },
-    { path: '/clients', icon: Users, label: 'Clientes' },
-    { path: '/condos', icon: Building2, label: 'Condomínios' },
-    { path: '/processes', icon: Scale, label: 'Processos' },
-    { path: '/calendar', icon: Calendar, label: 'Agenda' },
     { path: '/financial', icon: DollarSign, label: 'Financeiro' },
     { path: '/reports', icon: BarChart3, label: 'Relatórios' },
     { path: '/audit', icon: Shield, label: 'Auditoria', roles: ['owner', 'manager'] },
     { path: '/email', icon: Mail, label: 'Email' },
     { path: '/profile', icon: Users, label: 'Perfil' },
-  ];
+  ] as { path: string; icon: any; label: string; roles?: string[] }[];
 
   const filteredMenuItems = menuItems.filter(item =>
     !item.roles || (userRole && item.roles.includes(userRole))
@@ -58,14 +55,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-black transition-colors">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors">
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white dark:bg-zinc-950 border-b border-slate-200 dark:border-zinc-900 px-6 py-4">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-[var(--bg-primary)] border-b border-[var(--border-primary)] px-6 py-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-black text-slate-950 dark:text-white">StarJus</h1>
+          <h1 className="text-xl font-black text-[var(--text-primary)]">StarJus</h1>
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 text-slate-600 dark:text-zinc-400"
+            className="p-2 text-[var(--text-secondary)]"
           >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -74,22 +71,22 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 bottom-0 w-80 bg-white dark:bg-zinc-950 border-r border-slate-200 dark:border-zinc-900 z-40 transition-transform lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed top-0 left-0 bottom-0 w-80 bg-[var(--bg-primary)] border-r border-[var(--border-primary)] z-40 transition-transform lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
       >
         <div className="p-8">
-          <h1 className="text-2xl font-black text-slate-950 dark:text-white mb-2 cursor-pointer" onClick={() => navigate('/')}>
+          <h1 className="text-2xl font-black text-[var(--text-primary)] mb-2 cursor-pointer" onClick={() => navigate('/')}>
             Star<span className="gold-gradient-text">Jus</span>
           </h1>
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-gold-500 animate-pulse" />
-              <span className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-[0.3em]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] animate-pulse" />
+              <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.3em]">
                 Node Secure
               </span>
             </div>
             {/* Office Name Branding */}
-            <span className="text-[9px] font-bold text-gold-500/60 uppercase tracking-widest mt-1 truncate">
+            <span className="text-[9px] font-bold text-[var(--accent-primary)]/60 uppercase tracking-widest mt-1 truncate">
               {officeName || 'Carregando Escritório...'}
             </span>
           </div>
@@ -100,27 +97,26 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             const active = isActive(item.path);
             return (
               <button
-                key={item.path}
+                key={item.label}
                 onClick={() => {
                   navigate(item.path);
                   setIsMobileMenuOpen(false);
                 }}
-                className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black text-sm transition-all relative group ${active
-                  ? 'bg-gold-500/15 text-gold-500 shadow-[inset_0_0_25px_rgba(212,175,55,0.08)]'
-                  : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-900 hover:text-slate-950 dark:hover:text-white'
+                className={`w-full flex items-center justify-between px-6 py-4.5 rounded-3xl transition-all group relative overflow-hidden ${active
+                  ? 'bg-[var(--sidebar-active-bg)] text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 shadow-lg'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]'
                   }`}
               >
+                <div className="flex items-center gap-4 relative z-10">
+                  <item.icon size={20} className={active ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] group-hover:text-[var(--accent-primary)]'} />
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em]">{item.label}</span>
+                </div>
                 {active && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-gold-500 rounded-r-full shadow-[0_0_15px_rgba(212,175,55,1)]" />
+                  <>
+                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[var(--accent-primary)] rounded-r-full shadow-[0_0_15px_var(--accent-primary)]" />
+                    <div className="absolute right-4 w-1.5 h-1.5 bg-[var(--accent-primary)] rounded-full animate-pulse" />
+                  </>
                 )}
-
-                <item.icon
-                  size={20}
-                  className={`transition-all duration-300 ${active ? 'text-gold-500 scale-110 drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]' : 'group-hover:text-gold-500 group-hover:scale-110'}`}
-                />
-                <span className={`transition-all duration-300 ${active ? 'text-gold-500' : 'group-hover:text-gold-500'}`}>
-                  {item.label}
-                </span>
               </button>
             );
           })}

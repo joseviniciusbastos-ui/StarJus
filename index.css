@@ -4,118 +4,154 @@
   --gold-500: #d4af37;
   --bg-primary: white;
   --bg-secondary: #f8fafc;
+  --bg-elevated: #ffffff;
   --text-primary: #020617;
   --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --on-accent: #000000;
   --border-primary: #f1f5f9;
   --accent-primary: #d4af37;
   --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.03);
-  --sidebar-active-bg: rgba(212, 175, 55, 0.1);
+  --sidebar-active-bg: rgba(212, 175, 55, 0.15);
   --header-bg: rgba(255, 255, 255, 0.8);
+  --on-background-alt: #64748b;
 }
 
 .dark {
   --bg-primary: #09090b;
   --bg-secondary: #000000;
+  --bg-elevated: #18181b;
   --text-primary: #ffffff;
-  --text-secondary: #71717a;
-  --border-primary: #18181b;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --on-accent: #000000;
+  --on-background-alt: #71717a;
+  --border-primary: #27272a;
   --card-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   --header-bg: rgba(0, 0, 0, 0.8);
 }
 
 /* Theme Orchestration */
 .theme-midnight-gold {
-  /* Same as default dark */
+  /* Inherits dark mode base. Variables can be customized here for specific midnight-gold flair. */
+  --sidebar-active-bg: rgba(212, 175, 55, 0.2);
 }
 
 .theme-ivory-business {
   --bg-primary: #fdfcfb;
   --bg-secondary: #f3f2f0;
+  --bg-elevated: #ffffff;
   --text-primary: #1a1a1a;
   --text-secondary: #4a4a4a;
+  --text-muted: #71717a;
+  --on-accent: #ffffff;
   --border-primary: #e5e5e5;
   --accent-primary: #8b7355;
-  --sidebar-active-bg: rgba(139, 115, 85, 0.1);
+  --sidebar-active-bg: rgba(139, 115, 85, 0.2);
 }
 
 .theme-ocean-deep {
   --bg-primary: #001219;
   --bg-secondary: #00080a;
+  --bg-elevated: #001d29;
   --text-primary: #e9ecef;
   --text-secondary: #adb5bd;
-  --border-primary: #001d29;
+  --text-muted: #6c757d;
+  --on-accent: #000000;
+  --border-primary: #002d3d;
   --accent-primary: #00afb9;
-  --sidebar-active-bg: rgba(0, 175, 185, 0.1);
+  --sidebar-active-bg: rgba(0, 175, 185, 0.2);
 }
 
 .theme-forest-legal {
   --bg-primary: #06120e;
   --bg-secondary: #030806;
+  --bg-elevated: #0d211a;
   --text-primary: #ecf3f0;
   --text-secondary: #a8b9b1;
-  --border-primary: #0d211a;
+  --text-muted: #6b7c74;
+  --on-accent: #000000;
+  --border-primary: #163026;
   --accent-primary: #10b981;
-  --sidebar-active-bg: rgba(16, 185, 129, 0.1);
+  --sidebar-active-bg: rgba(16, 185, 129, 0.2);
 }
 
 .theme-cyber-justice {
   --bg-primary: #0f0514;
   --bg-secondary: #050207;
+  --bg-elevated: #1c0a25;
   --text-primary: #f5f3f7;
   --text-secondary: #b1a7bc;
-  --border-primary: #1c0a25;
+  --text-muted: #7c6f8a;
+  --on-accent: #000000;
+  --border-primary: #2d113a;
   --accent-primary: #d946ef;
-  --sidebar-active-bg: rgba(217, 70, 239, 0.1);
+  --sidebar-active-bg: rgba(217, 70, 239, 0.2);
 }
 
 .theme-royal-velvet {
   --bg-primary: #140505;
   --bg-secondary: #070101;
+  --bg-elevated: #250a0a;
   --text-primary: #f7f3f3;
   --text-secondary: #bc9b9b;
-  --border-primary: #250a0a;
+  --text-muted: #8a6f6f;
+  --on-accent: #ffffff;
+  --border-primary: #3a1111;
   --accent-primary: #dc2626;
-  --sidebar-active-bg: rgba(220, 38, 38, 0.1);
+  --sidebar-active-bg: rgba(220, 38, 38, 0.2);
 }
 
 .theme-minimalist-slate {
   --bg-primary: #ffffff;
   --bg-secondary: #f8fafc;
+  --bg-elevated: #f1f5f9;
   --text-primary: #0f172a;
   --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --on-accent: #ffffff;
   --border-primary: #e2e8f0;
   --accent-primary: #334155;
-  --sidebar-active-bg: rgba(51, 65, 85, 0.1);
+  --sidebar-active-bg: rgba(51, 65, 85, 0.2);
 }
 
 .theme-sunrise-law {
   --bg-primary: #fffcf0;
   --bg-secondary: #faf5e6;
+  --bg-elevated: #ffffff;
   --text-primary: #2d2a23;
   --text-secondary: #5e5a50;
+  --text-muted: #8d8778;
+  --on-accent: #000000;
   --border-primary: #ede4cc;
   --accent-primary: #f59e0b;
-  --sidebar-active-bg: rgba(245, 158, 11, 0.1);
+  --sidebar-active-bg: rgba(245, 158, 11, 0.2);
 }
 
 .theme-amethyst-legal {
   --bg-primary: #1a1625;
   --bg-secondary: #0d0b13;
+  --bg-elevated: #2a243b;
   --text-primary: #f0edf5;
   --text-secondary: #a39bb8;
-  --border-primary: #2a243b;
+  --text-muted: #746b8a;
+  --on-accent: #ffffff;
+  --border-primary: #3a3250;
   --accent-primary: #8b5cf6;
-  --sidebar-active-bg: rgba(139, 92, 246, 0.1);
+  --sidebar-active-bg: rgba(139, 92, 246, 0.2);
 }
 
 .theme-terra-cotta {
   --bg-primary: #1c140d;
   --bg-secondary: #0e0a06;
+  --bg-elevated: #2d2116;
   --text-primary: #f5f1ed;
   --text-secondary: #b8a291;
-  --border-primary: #2d2116;
+  --text-muted: #8a7361;
+  --on-accent: #ffffff;
+  --border-primary: #402f1f;
   --accent-primary: #ea580c;
-  --sidebar-active-bg: rgba(234, 88, 12, 0.1);
+  --sidebar-active-bg: rgba(234, 88, 12, 0.2);
 }
 
 body {

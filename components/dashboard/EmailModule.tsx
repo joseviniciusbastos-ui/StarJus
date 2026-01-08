@@ -109,7 +109,7 @@ export const EmailModule: React.FC = () => {
 
                     <button
                         onClick={() => setIsComposeOpen(true)}
-                        className="w-full bg-gradient-to-r from-gold-600 to-gold-400 text-black py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-[0_0_20px_rgba(212,175,55,0.2)] hover:shadow-[0_0_30px_rgba(212,175,55,0.3)] transition-all active:scale-95"
+                        className="w-full bg-gradient-to-r from-gold-600 to-gold-400 text-[var(--on-accent)] py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-[0_0_20px_rgba(212,175,55,0.2)] hover:shadow-[0_0_30px_rgba(212,175,55,0.3)] transition-all active:scale-95"
                     >
                         Compor Nova Estratégia
                     </button>
