@@ -80,7 +80,8 @@ export const ProfilePage: React.FC = () => {
             if (profile) {
                 setFullName(profile.full_name || '');
                 setInitialFullName(profile.full_name || '');
-                // Note: Extension columns might need a refresh or default handling if just added
+                setBio(profile.bio || '');
+                setCredentials(profile.credentials || '');
                 if (profile.notification_settings) {
                     setNotifSound(profile.notification_settings.sound !== false);
                     setNotifEmail(profile.notification_settings.email !== false);
@@ -136,8 +137,19 @@ export const ProfilePage: React.FC = () => {
 
             if (error) throw error;
 
-            // Audit logic...
-            toast.success('Preferências salvas localmente e na nuvem!');
+            // Audit logging
+            await logAudit({
+                userId: session?.user?.id || '',
+                officeId: officeId || '',
+                action: 'UPDATE_PROFILE',
+                entityType: 'USER',
+                entityId: session?.user?.id,
+                oldData: { full_name: initialFullName },
+                newData: { full_name: fullName, bio, credentials }
+            });
+
+            setInitialFullName(fullName);
+            toast.success('Perfil atualizado com sucesso!');
         } catch (error) {
             toast.error('Erro ao sincronizar dados.');
         } finally {

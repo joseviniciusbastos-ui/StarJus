@@ -38,11 +38,17 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   };
 
   const menuItems = [
+    { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
+    { path: '/productivity', icon: BarChart3, label: 'Produtividade' },
+    { path: '/clients', icon: Users, label: 'Clientes' },
+    { path: '/condos', icon: Building2, label: 'Condomínios' },
+    { path: '/processes', icon: Scale, label: 'Processos' },
+    { path: '/calendar', icon: Calendar, label: 'Agenda' },
     { path: '/financial', icon: DollarSign, label: 'Financeiro' },
     { path: '/reports', icon: BarChart3, label: 'Relatórios' },
     { path: '/audit', icon: Shield, label: 'Auditoria', roles: ['owner', 'manager'] },
     { path: '/email', icon: Mail, label: 'Email' },
-    { path: '/profile', icon: Users, label: 'Perfil' },
+    { path: '/profile', icon: User, label: 'Perfil' },
   ] as { path: string; icon: any; label: string; roles?: string[] }[];
 
   const filteredMenuItems = menuItems.filter(item =>
