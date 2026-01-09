@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../lib/AuthContext';
+import { supabase } from '../../../lib/supabase';
+import { useAuth } from '../../../lib/AuthContext';
 
 export const AppointmentTypeWidget: React.FC = () => {
     const { officeId } = useAuth();

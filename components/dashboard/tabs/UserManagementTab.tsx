@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { User, Trash2, Shield, Mail, Copy, Check } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../lib/AuthContext';
+import { supabase } from '../../../lib/supabase';
+import { useAuth } from '../../../lib/AuthContext';
 import toast from 'react-hot-toast';
 
 interface Member {

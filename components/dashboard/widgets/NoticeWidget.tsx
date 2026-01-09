@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Bell, ChevronRight, Calendar, Plus, X } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../lib/AuthContext';
-import { Modal } from '../ui/Modal';
+import { supabase } from '../../../lib/supabase';
+import { useAuth } from '../../../lib/AuthContext';
+import { Modal } from '../../ui/Modal';
 import toast from 'react-hot-toast';
 
 interface Notice {

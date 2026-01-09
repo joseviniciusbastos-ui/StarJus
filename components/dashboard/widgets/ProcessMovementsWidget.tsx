@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FileText, ArrowUpRight } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../lib/AuthContext';
+import { supabase } from '../../../lib/supabase';
+import { useAuth } from '../../../lib/AuthContext';
 
 export const ProcessMovementsWidget: React.FC = () => {
     const { officeId } = useAuth();

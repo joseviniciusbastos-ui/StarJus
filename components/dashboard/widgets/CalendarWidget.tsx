@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../lib/AuthContext';
+import { supabase } from '../../../lib/supabase';
+import { useAuth } from '../../../lib/AuthContext';
 
 export const CalendarWidget: React.FC = () => {
     const { officeId } = useAuth();
