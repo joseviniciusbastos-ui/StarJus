@@ -1,4 +1,3 @@
-```javascript
 import React, { useState, useEffect, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import {
@@ -52,12 +51,12 @@ export const ProductivityPage: React.FC = () => {
     const completed = tasks.filter(t => t.status === 'Concluído').length;
     const active = tasks.filter(t => t.status !== 'Concluído').length;
     const highPriority = tasks.filter(t => t.priority === 'High' && t.status !== 'Concluído').length;
-    
+
     // Taxa de Êxito: % Completed
     const successRate = Math.round((completed / total) * 100);
-    
+
     return {
-      successRate: `${ successRate }% `,
+      successRate: `${successRate}% `,
       activeTasks: active,
       highPriority: highPriority,
     };
@@ -139,25 +138,25 @@ export const ProductivityPage: React.FC = () => {
       {/* Real Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="premium-card p-8 rounded-[2.5rem] space-y-2 border border-slate-100 dark:border-zinc-900 bg-white dark:bg-black">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-600">Taxa de Êxito</span>
-            <div className="flex items-baseline gap-3">
-              <span className="text-4xl font-black tracking-tighter text-emerald-500">{metrics.successRate}</span>
-              <span className="text-[10px] font-bold text-slate-400 italic">Conclusão Global</span>
-            </div>
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-600">Taxa de Êxito</span>
+          <div className="flex items-baseline gap-3">
+            <span className="text-4xl font-black tracking-tighter text-emerald-500">{metrics.successRate}</span>
+            <span className="text-[10px] font-bold text-slate-400 italic">Conclusão Global</span>
+          </div>
         </div>
         <div className="premium-card p-8 rounded-[2.5rem] space-y-2 border border-slate-100 dark:border-zinc-900 bg-white dark:bg-black">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-600">Volume Ativo</span>
-            <div className="flex items-baseline gap-3">
-              <span className="text-4xl font-black tracking-tighter text-gold-500">{metrics.activeTasks}</span>
-              <span className="text-[10px] font-bold text-slate-400 italic">Operações em Curso</span>
-            </div>
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-600">Volume Ativo</span>
+          <div className="flex items-baseline gap-3">
+            <span className="text-4xl font-black tracking-tighter text-gold-500">{metrics.activeTasks}</span>
+            <span className="text-[10px] font-bold text-slate-400 italic">Operações em Curso</span>
+          </div>
         </div>
         <div className="premium-card p-8 rounded-[2.5rem] space-y-2 border border-slate-100 dark:border-zinc-900 bg-white dark:bg-black">
-             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-600">Críticas</span>
-            <div className="flex items-baseline gap-3">
-              <span className="text-4xl font-black tracking-tighter text-red-500">{metrics.highPriority}</span>
-              <span className="text-[10px] font-bold text-slate-400 italic">Alta Prioridade</span>
-            </div>
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-600">Críticas</span>
+          <div className="flex items-baseline gap-3">
+            <span className="text-4xl font-black tracking-tighter text-red-500">{metrics.highPriority}</span>
+            <span className="text-[10px] font-bold text-slate-400 italic">Alta Prioridade</span>
+          </div>
         </div>
       </div>
 
@@ -175,9 +174,9 @@ export const ProductivityPage: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`relative flex - 1 lg: flex - none flex items - center justify - center gap - 3 px - 10 py - 4 text - [11px] font - black uppercase tracking - widest rounded - [1.5rem] transition - all whitespace - nowrap z - 10 ${ activeTab === tab.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-lg scale-105' : 'text-slate-400 dark:text-zinc-600 hover:text-slate-900 dark:hover:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-900' } `}
+                  className={`relative flex - 1 lg: flex - none flex items - center justify - center gap - 3 px - 10 py - 4 text - [11px] font - black uppercase tracking - widest rounded - [1.5rem] transition - all whitespace - nowrap z - 10 ${activeTab === tab.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-lg scale-105' : 'text-slate-400 dark:text-zinc-600 hover:text-slate-900 dark:hover:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-900'} `}
                 >
-                    <tab.icon size={16} className={activeTab === tab.id ? "text-gold-500 dark:text-gold-600" : ""} /> {tab.label}
+                  <tab.icon size={16} className={activeTab === tab.id ? "text-gold-500 dark:text-gold-600" : ""} /> {tab.label}
                 </button>
               ))}
             </div>
@@ -200,7 +199,7 @@ export const ProductivityPage: React.FC = () => {
               ].map(q => (
                 <div
                   key={q.priority}
-                  className={`p - 10 rounded - [3rem] border flex flex - col ${ q.color } transition - all hover: shadow - 2xl relative overflow - hidden h - [450px]`}
+                  className={`p - 10 rounded - [3rem] border flex flex - col ${q.color} transition - all hover: shadow - 2xl relative overflow - hidden h - [450px]`}
                 >
                   <div className="flex justify-between items-start mb-10 relative z-10">
                     <div className="space-y-1">
@@ -242,7 +241,7 @@ export const ProductivityPage: React.FC = () => {
             </div>
           )}
           {activeTab === 'agenda' && (
-              <div className="premium-card p-20 rounded-[4rem] flex flex-col items-center justify-center text-center space-y-6">
+            <div className="premium-card p-20 rounded-[4rem] flex flex-col items-center justify-center text-center space-y-6">
               <Calendar size={48} className="text-gold-500" />
               <h3 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Agenda de Prazos</h3>
               <p className="text-sm text-slate-500 dark:text-zinc-500 font-bold max-w-md italic">Visualização de calendário em desenvolvimento.</p>
@@ -266,7 +265,7 @@ export const ProductivityPage: React.FC = () => {
               <div className="flex gap-8 mb-10">
                 <button
                   onClick={() => isActive ? (isPaused ? resume() : pause()) : start()}
-                  className={`w - 20 h - 20 rounded - 3xl flex items - center justify - center transition - all ${ isActive && !isPaused ? 'bg-red-500/20 text-red-500 border border-red-500/20' : 'bg-white text-black shadow-3xl hover:scale-105 active:scale-95' } `}
+                  className={`w - 20 h - 20 rounded - 3xl flex items - center justify - center transition - all ${isActive && !isPaused ? 'bg-red-500/20 text-red-500 border border-red-500/20' : 'bg-white text-black shadow-3xl hover:scale-105 active:scale-95'} `}
                 >
                   {isActive && !isPaused ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" />}
                 </button>
