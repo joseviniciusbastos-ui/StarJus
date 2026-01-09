@@ -56,10 +56,6 @@ export const ProductivityPage: React.FC = () => {
     // Taxa de Êxito: % Completed
     const successRate = Math.round((completed / total) * 100);
     
-    // Eficiência: Mocking slightly but based on High Priority clearance? 
-    // Let's use "Active vs Total" inverted or similar. 
-    // Actually, let's show "Tarefas Ativas" instead of ambiguous "Efficiency"
-    
     return {
       successRate: `${ successRate }% `,
       activeTasks: active,
