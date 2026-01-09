@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+```javascript
+import React, { useState, useEffect, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import {
   Zap, Clock, Play, Pause, RotateCcw, LayoutGrid, List, Layers,
-  Plus, Trash2, Edit2, Calendar, Sparkles, Search, ChevronRight, Hash, Flag, Target, MoreVertical, CheckCircle2
+  Plus, Calendar, Sparkles, ChevronRight
 } from 'lucide-react';
 import { Modal } from '../ui/Modal';
-import { Task, TaskPriority, TaskStatus } from '../../types';
+import { Task } from '../../types';
 import { KanbanBoard } from './KanbanBoard';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/AuthContext';
@@ -44,6 +45,27 @@ export const ProductivityPage: React.FC = () => {
     }
     setLoading(false);
   };
+
+  // Calculate Real Metrics
+  const metrics = useMemo(() => {
+    const total = tasks.length || 1;
+    const completed = tasks.filter(t => t.status === 'Concluído').length;
+    const active = tasks.filter(t => t.status !== 'Concluído').length;
+    const highPriority = tasks.filter(t => t.priority === 'High' && t.status !== 'Concluído').length;
+    
+    // Taxa de Êxito: % Completed
+    const successRate = Math.round((completed / total) * 100);
+    
+    // Eficiência: Mocking slightly but based on High Priority clearance? 
+    // Let's use "Active vs Total" inverted or similar. 
+    // Actually, let's show "Tarefas Ativas" instead of ambiguous "Efficiency"
+    
+    return {
+      successRate: `${ successRate }% `,
+      activeTasks: active,
+      highPriority: highPriority,
+    };
+  }, [tasks]);
 
   const handleEditTask = (task: Task) => {
     setEditingTask(task);
@@ -118,26 +140,36 @@ export const ProductivityPage: React.FC = () => {
 
   return (
     <div className="space-y-12 animate-in fade-in duration-700">
+      {/* Real Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {[
-          { label: 'Taxa de Êxito', value: '78%', sub: 'Média Regional: 62%', color: 'text-emerald-500' },
-          { label: 'Eficiência Operacional', value: '92%', sub: '+12% este mês', color: 'text-gold-500' },
-          { label: 'SLA de Resposta', value: '4.2h', sub: 'Target: 6.0h', color: 'text-blue-500' }
-        ].map((kpi, idx) => (
-          <div key={idx} className="premium-card p-8 rounded-[2.5rem] space-y-2">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-600">{kpi.label}</span>
+        <div className="premium-card p-8 rounded-[2.5rem] space-y-2 border border-slate-100 dark:border-zinc-900 bg-white dark:bg-black">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-600">Taxa de Êxito</span>
             <div className="flex items-baseline gap-3">
-              <span className={`text-4xl font-black tracking-tighter ${kpi.color}`}>{kpi.value}</span>
-              <span className="text-[10px] font-bold text-slate-400 italic">{kpi.sub}</span>
+              <span className="text-4xl font-black tracking-tighter text-emerald-500">{metrics.successRate}</span>
+              <span className="text-[10px] font-bold text-slate-400 italic">Conclusão Global</span>
             </div>
-          </div>
-        ))}
+        </div>
+        <div className="premium-card p-8 rounded-[2.5rem] space-y-2 border border-slate-100 dark:border-zinc-900 bg-white dark:bg-black">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-600">Volume Ativo</span>
+            <div className="flex items-baseline gap-3">
+              <span className="text-4xl font-black tracking-tighter text-gold-500">{metrics.activeTasks}</span>
+              <span className="text-[10px] font-bold text-slate-400 italic">Operações em Curso</span>
+            </div>
+        </div>
+        <div className="premium-card p-8 rounded-[2.5rem] space-y-2 border border-slate-100 dark:border-zinc-900 bg-white dark:bg-black">
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-600">Críticas</span>
+            <div className="flex items-baseline gap-3">
+              <span className="text-4xl font-black tracking-tighter text-red-500">{metrics.highPriority}</span>
+              <span className="text-[10px] font-bold text-slate-400 italic">Alta Prioridade</span>
+            </div>
+        </div>
       </div>
 
       <div className="flex flex-col xl:flex-row gap-12">
         <div className="flex-1 space-y-10 md:space-y-12">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
-            <div className="flex bg-slate-100 dark:bg-zinc-950 p-2 rounded-3xl border border-slate-200 dark:border-zinc-900 shadow-inner overflow-x-auto max-w-full custom-scrollbar">
+          {/* Enhanced Navigation Bar */}
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+            <div className="w-full lg:w-auto flex bg-white dark:bg-zinc-950 p-2 rounded-[2rem] border border-slate-200 dark:border-zinc-800 shadow-xl overflow-x-auto custom-scrollbar">
               {[
                 { id: 'matrix', icon: Layers, label: 'Estratégia' },
                 { id: 'kanban', icon: LayoutGrid, label: 'Execução' },
@@ -147,18 +179,18 @@ export const ProductivityPage: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-3 px-8 py-3.5 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-white dark:bg-zinc-800 text-gold-600 dark:text-gold-500 shadow-xl border border-slate-200 dark:border-zinc-700' : 'text-slate-500 dark:text-zinc-600 hover:text-slate-950 dark:hover:text-zinc-300'}`}
+                  className={`relative flex - 1 lg: flex - none flex items - center justify - center gap - 3 px - 10 py - 4 text - [11px] font - black uppercase tracking - widest rounded - [1.5rem] transition - all whitespace - nowrap z - 10 ${ activeTab === tab.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-lg scale-105' : 'text-slate-400 dark:text-zinc-600 hover:text-slate-900 dark:hover:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-900' } `}
                 >
-                  <tab.icon size={14} /> {tab.label}
+                    <tab.icon size={16} className={activeTab === tab.id ? "text-gold-500 dark:text-gold-600" : ""} /> {tab.label}
                 </button>
               ))}
             </div>
 
             <button
               onClick={() => setIsNewTaskModalOpen(true)}
-              className="w-full sm:w-auto bg-black dark:bg-white text-white dark:text-black px-10 py-5 rounded-[2rem] font-black uppercase tracking-[0.1em] text-[11px] flex items-center justify-center gap-3 shadow-2xl active:scale-95 transition-all"
+              className="w-full lg:w-auto bg-gold-500 text-black px-8 py-5 rounded-[2rem] font-black uppercase tracking-[0.1em] text-[11px] flex items-center justify-center gap-3 shadow-gold-glow hover:bg-gold-400 active:scale-95 transition-all"
             >
-              <Plus size={18} /> Iniciar Operação
+              <Plus size={18} /> Nova Operação
             </button>
           </div>
 
@@ -172,7 +204,7 @@ export const ProductivityPage: React.FC = () => {
               ].map(q => (
                 <div
                   key={q.priority}
-                  className={`p-10 rounded-[3rem] border flex flex-col ${q.color} transition-all hover:shadow-2xl relative overflow-hidden h-[450px]`}
+                  className={`p - 10 rounded - [3rem] border flex flex - col ${ q.color } transition - all hover: shadow - 2xl relative overflow - hidden h - [450px]`}
                 >
                   <div className="flex justify-between items-start mb-10 relative z-10">
                     <div className="space-y-1">
@@ -213,9 +245,17 @@ export const ProductivityPage: React.FC = () => {
               <p className="text-sm text-slate-500 dark:text-zinc-500 font-bold max-w-md italic">O módulo de tabelas executivas está sendo otimizado para a arquitetura v2.0.</p>
             </div>
           )}
+          {activeTab === 'agenda' && (
+              <div className="premium-card p-20 rounded-[4rem] flex flex-col items-center justify-center text-center space-y-6">
+              <Calendar size={48} className="text-gold-500" />
+              <h3 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Agenda de Prazos</h3>
+              <p className="text-sm text-slate-500 dark:text-zinc-500 font-bold max-w-md italic">Visualização de calendário em desenvolvimento.</p>
+            </div>
+          )}
         </div>
 
         <div className="w-full xl:w-[450px] space-y-12">
+          {/* Pomodoro Timer - Kept as is, it's functional */}
           <div className="bg-black dark:bg-zinc-950 rounded-[4rem] p-12 text-white shadow-3xl relative overflow-hidden group border border-gold-500/10">
             <div className="absolute top-0 right-0 w-48 h-48 bg-gold-600/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
             <div className="relative z-10 flex flex-col items-center">
@@ -230,7 +270,7 @@ export const ProductivityPage: React.FC = () => {
               <div className="flex gap-8 mb-10">
                 <button
                   onClick={() => isActive ? (isPaused ? resume() : pause()) : start()}
-                  className={`w-20 h-20 rounded-3xl flex items-center justify-center transition-all ${isActive && !isPaused ? 'bg-red-500/20 text-red-500 border border-red-500/20' : 'bg-white text-black shadow-3xl hover:scale-105 active:scale-95'}`}
+                  className={`w - 20 h - 20 rounded - 3xl flex items - center justify - center transition - all ${ isActive && !isPaused ? 'bg-red-500/20 text-red-500 border border-red-500/20' : 'bg-white text-black shadow-3xl hover:scale-105 active:scale-95' } `}
                 >
                   {isActive && !isPaused ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" />}
                 </button>
