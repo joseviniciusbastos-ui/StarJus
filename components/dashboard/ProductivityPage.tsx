@@ -134,96 +134,121 @@ export const ProductivityPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-700">
-      {/* Real Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="premium-card p-8 rounded-[2.5rem] space-y-2 border border-slate-100 dark:border-zinc-900 bg-white dark:bg-black">
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-600">Taxa de Êxito</span>
-          <div className="flex items-baseline gap-3">
-            <span className="text-4xl font-black tracking-tighter text-emerald-500">{metrics.successRate}</span>
-            <span className="text-[10px] font-bold text-slate-400 italic">Conclusão Global</span>
+    <div className="flex flex-col lg:flex-row gap-8 animate-in fade-in duration-700">
+      {/* Productivity Sub-Sidebar */}
+      <aside className="w-full lg:w-64 flex-shrink-0">
+        <div className="sticky top-24 space-y-6">
+          <div className="flex flex-col gap-2 p-2 bg-white dark:bg-zinc-950 rounded-[2rem] border border-slate-200 dark:border-zinc-800 shadow-xl">
+            {[
+              { id: 'matrix', icon: Layers, label: 'Estratégia' },
+              { id: 'kanban', icon: LayoutGrid, label: 'Execução' },
+              { id: 'sheets', icon: List, label: 'Ledger' },
+              { id: 'agenda', icon: Calendar, label: 'Prazos' }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center gap-3 px-6 py-4 text-[11px] font-black uppercase tracking-widest rounded-2xl transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-lg scale-[1.02]' : 'text-slate-400 dark:text-zinc-600 hover:text-slate-900 dark:hover:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-900'} `}
+              >
+                <tab.icon size={16} className={activeTab === tab.id ? "text-gold-500" : ""} />
+                <span>{tab.label}</span>
+              </button>
+            ))}
           </div>
-        </div>
-        <div className="premium-card p-8 rounded-[2.5rem] space-y-2 border border-slate-100 dark:border-zinc-900 bg-white dark:bg-black">
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-600">Volume Ativo</span>
-          <div className="flex items-baseline gap-3">
-            <span className="text-4xl font-black tracking-tighter text-gold-500">{metrics.activeTasks}</span>
-            <span className="text-[10px] font-bold text-slate-400 italic">Operações em Curso</span>
-          </div>
-        </div>
-        <div className="premium-card p-8 rounded-[2.5rem] space-y-2 border border-slate-100 dark:border-zinc-900 bg-white dark:bg-black">
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-600">Críticas</span>
-          <div className="flex items-baseline gap-3">
-            <span className="text-4xl font-black tracking-tighter text-red-500">{metrics.highPriority}</span>
-            <span className="text-[10px] font-bold text-slate-400 italic">Alta Prioridade</span>
-          </div>
-        </div>
-      </div>
 
-      <div className="flex flex-col xl:flex-row gap-12">
-        <div className="flex-1 space-y-10 md:space-y-12">
-          {/* Enhanced Navigation Bar */}
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-            <div className="w-full lg:w-auto flex bg-white dark:bg-zinc-950 p-2 rounded-[2rem] border border-slate-200 dark:border-zinc-800 shadow-xl overflow-x-auto custom-scrollbar">
-              {[
-                { id: 'matrix', icon: Layers, label: 'Estratégia' },
-                { id: 'kanban', icon: LayoutGrid, label: 'Execução' },
-                { id: 'sheets', icon: List, label: 'Ledger' },
-                { id: 'agenda', icon: Calendar, label: 'Prazos' }
-              ].map((tab) => (
+          {/* Mini Pomodoro Integrated */}
+          <div className="bg-black dark:bg-zinc-900 rounded-[2rem] p-6 text-white border border-gold-500/10 shadow-2xl overflow-hidden relative group">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gold-600/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+            <div className="relative z-10 flex flex-col items-center">
+              <span className="text-[8px] font-black uppercase tracking-[0.3em] text-gold-500/60 mb-3">Focus Hub</span>
+              <div className="text-3xl font-black tracking-tighter mb-4 font-mono text-center">
+                {formatTime(pomodoroTime)}
+              </div>
+              <div className="flex gap-4">
                 <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`relative flex - 1 lg: flex - none flex items - center justify - center gap - 3 px - 10 py - 4 text - [11px] font - black uppercase tracking - widest rounded - [1.5rem] transition - all whitespace - nowrap z - 10 ${activeTab === tab.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-lg scale-105' : 'text-slate-400 dark:text-zinc-600 hover:text-slate-900 dark:hover:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-900'} `}
+                  onClick={() => isActive ? (isPaused ? resume() : pause()) : start()}
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isActive && !isPaused ? 'bg-red-500/20 text-red-500' : 'bg-white text-black hover:scale-105 active:scale-95'} `}
                 >
-                  <tab.icon size={16} className={activeTab === tab.id ? "text-gold-500 dark:text-gold-600" : ""} /> {tab.label}
+                  {isActive && !isPaused ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />}
                 </button>
-              ))}
+                <button
+                  onClick={() => resetTimer()}
+                  className="w-10 h-10 bg-white/5 text-zinc-500 rounded-xl flex items-center justify-center border border-white/10 hover:text-gold-500 transition-all active:scale-95"
+                >
+                  <RotateCcw size={16} />
+                </button>
+              </div>
             </div>
+          </div>
+        </div>
+      </aside>
 
-            <button
-              onClick={() => setIsNewTaskModalOpen(true)}
-              className="w-full lg:w-auto bg-gold-500 text-black px-8 py-5 rounded-[2rem] font-black uppercase tracking-[0.1em] text-[11px] flex items-center justify-center gap-3 shadow-gold-glow hover:bg-gold-400 active:scale-95 transition-all"
-            >
-              <Plus size={18} /> Nova Operação
-            </button>
+      {/* Main Content Area */}
+      <div className="flex-1 space-y-8">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white dark:bg-zinc-950 p-8 rounded-[2.5rem] border border-slate-200 dark:border-zinc-800 shadow-sm">
+          <div className="flex flex-wrap items-center gap-8">
+            <div className="space-y-1">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-600">Taxa de Êxito</span>
+              <p className="text-2xl font-black tracking-tighter text-emerald-500 leading-none">{metrics.successRate}</p>
+            </div>
+            <div className="w-px h-8 bg-slate-100 dark:bg-zinc-800 hidden sm:block" />
+            <div className="space-y-1">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-600">Em Curso</span>
+              <p className="text-2xl font-black tracking-tighter text-gold-500 leading-none">{metrics.activeTasks}</p>
+            </div>
+            <div className="w-px h-8 bg-slate-100 dark:bg-zinc-800 hidden sm:block" />
+            <div className="space-y-1">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-600">Críticas</span>
+              <p className="text-2xl font-black tracking-tighter text-red-500 leading-none">{metrics.highPriority}</p>
+            </div>
           </div>
 
+          <button
+            onClick={() => setIsNewTaskModalOpen(true)}
+            className="w-full md:w-auto bg-gold-500 text-black px-8 py-4 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] flex items-center justify-center gap-3 shadow-gold-glow hover:bg-gold-400 active:scale-95 transition-all"
+          >
+            <Plus size={18} /> Nova Operação
+          </button>
+        </div>
+
+        {/* View Content */}
+        <div className="min-h-[600px]">
           {activeTab === 'matrix' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {[
-                { priority: 'High', title: 'Crítico', sub: 'Status: Fatal', color: 'bg-red-500/[0.03] text-red-500 border-red-500/10' },
-                { priority: 'Medium', title: 'Desenvolvimento', sub: 'Status: Estratégico', color: 'bg-gold-500/[0.03] text-gold-600 border-gold-500/10' },
-                { priority: 'Low', title: 'Operacional Jurídico', sub: 'Status: Delegação', color: 'bg-slate-50 dark:bg-zinc-950 text-slate-500 dark:text-zinc-600 border-slate-200 dark:border-zinc-900' },
-                { priority: 'None', title: 'Histórico de Mérito', sub: 'Status: Concluído', color: 'bg-emerald-500/[0.03] text-emerald-600 border-emerald-500/10' }
+                { priority: 'High', title: 'Crítico', sub: 'Status: Fatal', color: 'bg-red-500/[0.02] text-red-500 border-red-500/10' },
+                { priority: 'Medium', title: 'Desenvolvimento', sub: 'Status: Estratégico', color: 'bg-gold-500/[0.02] text-gold-600 border-gold-500/10' },
+                { priority: 'Low', title: 'Operacional Jurídico', sub: 'Status: Delegação', color: 'bg-slate-50 dark:bg-zinc-950/50 text-slate-500 dark:text-zinc-600 border-slate-200 dark:border-zinc-900' },
+                { priority: 'None', title: 'Histórico de Mérito', sub: 'Status: Concluído', color: 'bg-emerald-500/[0.02] text-emerald-600 border-emerald-500/10' }
               ].map(q => (
                 <div
                   key={q.priority}
-                  className={`p - 10 rounded - [3rem] border flex flex - col ${q.color} transition - all hover: shadow - 2xl relative overflow - hidden h - [450px]`}
+                  className={`p-8 rounded-[3rem] border flex flex-col ${q.color} transition-all hover:shadow-xl relative overflow-hidden h-[400px]`}
                 >
-                  <div className="flex justify-between items-start mb-10 relative z-10">
+                  <div className="flex justify-between items-start mb-8 relative z-10">
                     <div className="space-y-1">
                       <h3 className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 leading-none">{q.sub}</h3>
-                      <h4 className="text-2xl font-black tracking-tighter italic font-serif leading-none mt-2">{q.title}</h4>
+                      <h4 className="text-xl font-black tracking-tighter italic font-serif leading-none mt-2">{q.title}</h4>
                     </div>
-                    <span className="text-4xl font-black opacity-10 tracking-tighter font-mono">
+                    <span className="text-3xl font-black opacity-10 tracking-tighter font-mono">
                       {tasks.filter(t => q.priority === 'None' ? t.status === 'Concluído' : t.priority === q.priority && t.status !== 'Concluído').length.toString().padStart(2, '0')}
                     </span>
                   </div>
-                  <div className="flex-1 overflow-y-auto space-y-4 custom-scrollbar pr-4 relative z-10">
+                  <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-2 relative z-10">
                     {tasks.filter(t => q.priority === 'None' ? t.status === 'Concluído' : t.priority === q.priority && t.status !== 'Concluído').map(task => (
                       <div
                         key={task.id}
                         onClick={() => handleEditTask(task)}
-                        className="bg-white dark:bg-black p-6 rounded-[2rem] border border-slate-100 dark:border-zinc-900 shadow-sm flex items-center gap-5 cursor-pointer hover:border-gold-500 hover:-translate-y-1 transition-all group"
+                        className="bg-white dark:bg-black p-5 rounded-2xl border border-slate-100 dark:border-zinc-900 shadow-sm flex items-center gap-4 cursor-pointer hover:border-gold-500 hover:-translate-y-0.5 transition-all group"
                       >
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-black text-slate-950 dark:text-zinc-300 truncate group-hover:text-gold-600 transition-colors uppercase tracking-tight">{task.title}</p>
-                          <div className="flex items-center gap-3 mt-2">
-                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-600 opacity-60">ID: {task.id} • {task.tag}</span>
+                          <p className="text-xs font-black text-slate-950 dark:text-zinc-300 truncate group-hover:text-gold-600 transition-colors uppercase tracking-tight">{task.title}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[8px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-600 opacity-60">ID: {task.id} • {task.tag}</span>
                           </div>
                         </div>
-                        <ChevronRight size={14} className="text-slate-200 dark:text-zinc-800 group-hover:text-gold-500" />
+                        <ChevronRight size={12} className="text-slate-200 dark:text-zinc-800 group-hover:text-gold-500" />
                       </div>
                     ))}
                   </div>
@@ -233,55 +258,26 @@ export const ProductivityPage: React.FC = () => {
           )}
 
           {activeTab === 'kanban' && <KanbanBoard />}
+
           {activeTab === 'sheets' && (
-            <div className="premium-card p-20 rounded-[4rem] flex flex-col items-center justify-center text-center space-y-6">
+            <div className="bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 p-20 rounded-[4rem] flex flex-col items-center justify-center text-center space-y-6">
               <List size={48} className="text-gold-500" />
-              <h3 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Ledger em Sincronização</h3>
-              <p className="text-sm text-slate-500 dark:text-zinc-500 font-bold max-w-md italic">O módulo de tabelas executivas está sendo otimizado para a arquitetura v2.0.</p>
+              <h3 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Ledger Executivo</h3>
+              <p className="text-sm text-slate-500 dark:text-zinc-500 font-bold max-w-md italic">Sincronizando registros da arquitetura v2.0...</p>
             </div>
           )}
+
           {activeTab === 'agenda' && (
-            <div className="premium-card p-20 rounded-[4rem] flex flex-col items-center justify-center text-center space-y-6">
+            <div className="bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 p-20 rounded-[4rem] flex flex-col items-center justify-center text-center space-y-6">
               <Calendar size={48} className="text-gold-500" />
               <h3 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Agenda de Prazos</h3>
-              <p className="text-sm text-slate-500 dark:text-zinc-500 font-bold max-w-md italic">Visualização de calendário em desenvolvimento.</p>
+              <p className="text-sm text-slate-500 dark:text-zinc-500 font-bold max-w-md italic">Interface de calendário em otimização.</p>
             </div>
           )}
-        </div>
-
-        <div className="w-full xl:w-[450px] space-y-12">
-          {/* Pomodoro Timer - Kept as is, it's functional */}
-          <div className="bg-black dark:bg-zinc-950 rounded-[4rem] p-12 text-white shadow-3xl relative overflow-hidden group border border-gold-500/10">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-gold-600/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="flex items-center gap-3 mb-10 bg-gold-600/10 px-6 py-2.5 rounded-full border border-gold-600/20">
-                <Sparkles size={16} className="text-gold-500 animate-pulse" />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-gold-500">Deep Focus Hub</span>
-              </div>
-              <div className="text-8xl font-black tracking-tighter mb-10 font-mono flex items-baseline animate-float-slow">
-                {formatTime(pomodoroTime)}
-                <span className="text-sm font-black text-gold-600 ml-4 uppercase tracking-widest font-sans">SEC</span>
-              </div>
-              <div className="flex gap-8 mb-10">
-                <button
-                  onClick={() => isActive ? (isPaused ? resume() : pause()) : start()}
-                  className={`w - 20 h - 20 rounded - 3xl flex items - center justify - center transition - all ${isActive && !isPaused ? 'bg-red-500/20 text-red-500 border border-red-500/20' : 'bg-white text-black shadow-3xl hover:scale-105 active:scale-95'} `}
-                >
-                  {isActive && !isPaused ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" />}
-                </button>
-                <button
-                  onClick={() => resetTimer()}
-                  className="w-20 h-20 bg-zinc-900 text-zinc-600 rounded-3xl flex items-center justify-center border border-zinc-800 hover:text-gold-500 transition-all shadow-xl"
-                >
-                  <RotateCcw size={28} />
-                </button>
-              </div>
-              <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em]">Protocolo de Foco</p>
-            </div>
-          </div>
         </div>
       </div>
 
+      {/* Modals */}
       <Modal
         isOpen={isNewTaskModalOpen || !!editingTask}
         onClose={() => { setIsNewTaskModalOpen(false); setEditingTask(null); }}
