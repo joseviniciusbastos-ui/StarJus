@@ -112,15 +112,15 @@ export const ProductivityPage: React.FC = () => {
 
     setSaving(true);
     try {
-      const { error } = await (supabase
-        .from('tasks')
+      const { error } = await ((supabase
+        .from('tasks') as any)
         .update({
           title,
           priority,
           tag,
           description
-        } as any)
-        .eq('id', editingTask.id) as any);
+        })
+        .eq('id', editingTask.id));
 
       if (error) throw error;
       toast.success('Operação atualizada.');
@@ -134,11 +134,11 @@ export const ProductivityPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 animate-in fade-in duration-700">
+    <div className="flex flex-col lg:flex-row gap-4 animate-in fade-in duration-700 -ml-4">
       {/* Productivity Sub-Sidebar */}
-      <aside className="w-full lg:w-64 flex-shrink-0">
-        <div className="sticky top-24 space-y-6">
-          <div className="flex flex-col gap-2 p-2 bg-white dark:bg-zinc-950 rounded-[2rem] border border-slate-200 dark:border-zinc-800 shadow-xl">
+      <aside className="w-full lg:w-60 flex-shrink-0">
+        <div className="sticky top-24 space-y-4">
+          <div className="flex flex-col gap-1 p-2 bg-white dark:bg-zinc-950 rounded-[2rem] border border-slate-200 dark:border-zinc-800 shadow-xl">
             {[
               { id: 'matrix', icon: Layers, label: 'Estratégia' },
               { id: 'kanban', icon: LayoutGrid, label: 'Execução' },

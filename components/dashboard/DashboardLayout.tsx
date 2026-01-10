@@ -2,10 +2,12 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Building2, Scale, DollarSign, BarChart3, Shield, MapPin, ChevronRight, MessageSquare,
-  Calendar, MoreVertical, Star, UserCheck, Smartphone, Sparkles, User, Settings, LogOut, Moon, Sun, Menu, X, Clock, Play, Pause, Search, Bell, Mail, Trash2, Send, Inbox, Archive
+  Calendar, MoreVertical, Star, UserCheck, Smartphone, Sparkles, User, Settings, LogOut, Moon, Sun, Menu, X, Clock, Play, Pause, Search, Bell, Mail, Trash2, Send, Inbox, Archive,
+  ChevronDown, ExternalLink
 } from 'lucide-react';
 import { useAuth } from '../../lib/AuthContext';
 import { useTimer } from '../../lib/TimerContext';
+import { SmartPopups } from '../ui/SmartPopups';
 import toast from 'react-hot-toast';
 
 interface DashboardLayoutProps {
@@ -27,6 +29,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const { time, isTimerActive, isPaused, start, pause, resume, formatTime } = useTimer();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [isUserMenuOpen, setIsUserMenuOpen] = React.useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,23 +201,72 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               <span className="text-xs font-black text-slate-950 dark:text-white">{officeName || 'StarJus Office'}</span>
               <span className="text-[10px] font-bold text-gold-600 uppercase tracking-widest">{userRole || 'Carregando...'}</span>
             </div>
+
+            <div className="relative">
+              <button
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="flex items-center gap-3 p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-900 transition-all"
+              >
+                <div className="w-10 h-10 rounded-xl bg-gold-500 flex items-center justify-center text-black font-black text-sm">
+                  {officeName?.[0] || 'S'}
+                </div>
+                <ChevronDown size={16} className={`text-slate-400 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isUserMenuOpen && (
+                <div className="absolute top-full right-0 mt-2 w-64 bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-2xl py-2 z-50 animate-in fade-in zoom-in duration-200">
+                  <div className="px-4 py-3 border-b border-slate-100 dark:border-zinc-900 mb-2">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Acesso Rápido</p>
+                  </div>
+                  {[
+                    { label: 'Meu Perfil', icon: User, path: '/profile' },
+                    { label: 'Escritório', icon: Building2, path: '/settings' },
+                    { label: 'Personalização SaaS', icon: Sparkles, path: '/settings' },
+                  ].map((item) => (
+                    <button
+                      key={item.label}
+                      onClick={() => {
+                        navigate(item.path);
+                        setIsUserMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-all"
+                    >
+                      <item.icon size={16} />
+                      <span>{item.label}</span>
+                    </button>
+                  ))}
+                  <div className="h-px bg-slate-100 dark:border-zinc-900 my-2" />
+                  <button
+                    onClick={() => {
+                      onLogout?.();
+                      setIsUserMenuOpen(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all"
+                  >
+                    <LogOut size={16} />
+                    <span>Sair do Sistema</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
             <button
               onClick={() => toast('Você não possui novas notificações.', { icon: '🔔' })}
               className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-zinc-900 flex items-center justify-center text-slate-600 dark:text-zinc-400 hover:text-gold-500 transition-all"
             >
               <Bell size={20} />
             </button>
-            <div className="w-10 h-10 rounded-xl bg-gold-500 flex items-center justify-center text-black font-black text-sm">
-              {officeName?.[0] || 'S'}
-            </div>
           </div>
         </header>
 
-        <div className="p-6 lg:p-12">
+        <div className="p-4 lg:p-8">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>
         </div>
+
+        {/* Smart Popups Container */}
+        <SmartPopups />
       </main>
 
       {/* Mobile Menu Overlay */}
